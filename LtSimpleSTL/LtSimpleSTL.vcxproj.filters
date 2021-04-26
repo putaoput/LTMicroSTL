@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\alloc">
+      <UniqueIdentifier>{de2bad98-3688-488e-831a-f5e9a36a3bd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\type">
+      <UniqueIdentifier>{41ce0564-2eda-49b7-87b8-e4bf63c023cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\basic data structure">
+      <UniqueIdentifier>{b6398063-c41a-4d08-846c-8a2913c3fb06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\function">
+      <UniqueIdentifier>{8d862ece-7b01-4da1-9ec9-5d0a1524a76e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\iteratiors">
+      <UniqueIdentifier>{e49b8730-abe7-4341-8a97-3c9969f312fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\util">
+      <UniqueIdentifier>{834ceb15-622f-4773-8e22-086561a706b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\algorithm">
+      <UniqueIdentifier>{ec5f6ac2-b959-433b-9e4e-c796a352e89d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="type_traits.h">
+      <Filter>头文件\type</Filter>
+    </ClInclude>
+    <ClInclude Include="rb_tree.h">
+      <Filter>头文件\basic data structure</Filter>
+    </ClInclude>
+    <ClInclude Include="functional.h">
+      <Filter>头文件\function</Filter>
+    </ClInclude>
+    <ClInclude Include="iterator.h">
+      <Filter>头文件\iteratiors</Filter>
+    </ClInclude>
+    <ClInclude Include="memory.h">
+      <Filter>头文件\alloc</Filter>
+    </ClInclude>
+    <ClInclude Include="alloc.h">
+      <Filter>头文件\alloc</Filter>
+    </ClInclude>
+    <ClInclude Include="allocator.h">
+      <Filter>头文件\alloc</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>头文件\util</Filter>
+    </ClInclude>
+    <ClInclude Include="construct.h">
+      <Filter>头文件\alloc</Filter>
+    </ClInclude>
+    <ClInclude Include="uninitialized.h">
+      <Filter>头文件\alloc</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithm.h">
+      <Filter>头文件\algorithm</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
