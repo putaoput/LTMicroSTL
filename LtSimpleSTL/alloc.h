@@ -2,7 +2,7 @@
 //@Email: putaopu@qq.com
 
 #pragma once
-//这个头文件负责分配内存，主要用于维护16个自由链表，管理内存池
+//这个头文件负责分配内存，是默认的内存配置器。管理内存池，主要用于维护16个自由链表。对于大内存，转而调用第一级配置器
 #include <cstdlib> //分配内存的库函数malloc和free在这里
 
 namespace LT {
@@ -40,6 +40,8 @@ namespace LT {
 			return (_bytes / ALIGN) - 1;
 		}
 
+		//该函数的输入大小一定是8的倍数，用于返回一个大小为n的区块，
+		//有时候会给自由链表增加节点。
 		static void* refill(size_t _n) {
 
 		}

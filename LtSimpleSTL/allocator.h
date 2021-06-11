@@ -2,7 +2,8 @@
 //@Email: putaopu@qq.com
 
 #pragma once
-//该头文件负责大内存的分配
+//该头文件是空间配置器之一，简单的对new 和delete进行了封装。不作为默认空间配置器
+//只分配内存
 #include "construct.h"
 
 namespace LT {
@@ -25,16 +26,6 @@ namespace LT {
 
 		static void deallocate(T* _ptr);
 		static void deallocate(T* _ptr, size_type _n);
-
-		static void construct(T* _ptr);
-		static void construct(T* _ptr, const T& _value);
-		static void construct(T* _ptr, T&& _value);
-
-		template <class... Args>
-		static void construct(T* _ptr, Args&& ..._args);
-
-		static void destroy(T* _ptr);
-		static void destroy(T* _first, T* _last);
 	};
 
 	template <class T>
@@ -65,41 +56,10 @@ namespace LT {
 		deallocate(_ptr);
 	}
 
-	template <class T>
-	void allocator<T>::construct(T* _ptr)
-	{
-		LT::construct(_ptr);
-	}
-
-	template <class T>
-	void allocator<T>::construct(T* _ptr, const T& _value)
-	{
-		LT::construct(_ptr, _value);
-	}
-
-	template <class T>
-	void allocator<T>::construct(T* _ptr, T&& _value)
-	{
-		LT::construct(_ptr, LT::move(_value));
-	}
-
-	template <class T>
-	template <class ...Args>
-	void allocator<T>::construct(T* _ptr, Args&& ..._args)
-	{
-		LT::construct(_ptr, LT::forward<Args>(_args)...);
-	}
-
-	template <class T>
-	void allocator<T>::destroy(T* _ptr)
-	{
-		LT::destroy(_ptr);
-	}
-
-	template <class T>
-	void allocator<T>::destroy(T* _first, T* _last)
-	{
-		LT::destroy(_first, _last);
+	////析构之前是获取这段内存的首地址，而传入的往往是指向某一个数据结构的指针，这个时候需要从这个指针里面获取首地址
+	template<class T>
+	T* get_deleter(T* _ptr) {
+		return &*_ptr;
 	}
 }
 

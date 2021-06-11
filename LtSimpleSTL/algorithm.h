@@ -2,35 +2,17 @@
 //@Email: putaopu@qq.com
 
 #pragma once
-//该头文件负责实现常见算法，目前已经实现的有：
-//max,min,
+//该头文件负责实现常见算法，
 #include "iterator.h"
 #include "util.h"
 #include "functional.h"
 #include "type_traits.h"
 #include "allocator.h"
+#include "algobase.h"
+#include "stl_algo.h"
 
 namespace LT {
-	//---------------------------------------------max,min----------------------------------------
-	template <class T>
-	const T& min(const T& _a, const T& _b) {
-		return (_a < _b) ? _a : _b;
-	}
 
-	template <class T, class Compare>
-	const T& min(const T& _a, const T& _b, Compare cmp) {
-		return (cmp(_a, _b)) ? _a : _b;
-	}
-
-	template <class T>
-	const T& max(const T& _a, const T& _b) {
-		return (_a > _b) ? _a : _b;
-	}
-
-	template <class T, class Compare>
-	const T& max(const T& _a, const T& _b, Compare cmp) {
-		return (cmp(_a, _b)) ? _a : _b;
-	}
 
 	//-----------------------------------------排序算法-------------------------------------------
 	//当元素数量小于等于16时，直接使用插入排序。否则使用三数中值分割的快速排序，当恶化时。转而使用堆排序
@@ -62,12 +44,12 @@ namespace LT {
 	template<class RandomAcessIterator>
 	RandomAcessIterator __mid3(RandomAcessIterator _first, RandomAcessIterator _end) {
 		auto mid = (_end - _first) / 2 + _first;
-		auto last = _end - 1;
+		auto _end = _end - 1;
 		if (*_first > * mid) {
 			LT::iter_swap(_first, mid);
 		}
-		if (*mid > * last) {
-			LT::iter_swap(last, mid);
+		if (*mid > * _end) {
+			LT::iter_swap(_end, mid);
 		}
 
 		if (*mid < *_first) {
@@ -107,13 +89,11 @@ namespace LT {
 	void __heap_sort(RandomAcessIterator _first, RandomAcessIterator _end, Comp _cmp) {
 		int len = _end - _first;
 		//先建立堆
-		for (int i = len / 2 - 1; i >= 0; --i) {
-			__adjust(_first, i, len, _cmp);
-		}
+		LT::__make_heap(_first,_end,_cmp);
 		//排序
 		for (int i = len - 1; i >= 0; --i) {
 			iter_swap(_first, _first + i);
-			__adjust(_first, 0, i, _cmp);
+			LT::__adjust(_first, 0, i, _cmp);
 		}
 	}
 

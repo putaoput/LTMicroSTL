@@ -84,10 +84,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,21 +140,37 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="algobase.h" />
     <ClInclude Include="algorithm.h" />
     <ClInclude Include="alloc.h" />
     <ClInclude Include="allocator.h" />
+    <ClInclude Include="basic_string.h" />
     <ClInclude Include="construct.h" />
+    <ClInclude Include="deque.h" />
     <ClInclude Include="functional.h" />
+    <ClInclude Include="hashtable.h" />
     <ClInclude Include="iterator.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="map.h" />
     <ClInclude Include="memory.h" />
+    <ClInclude Include="queue.h" />
     <ClInclude Include="rb_tree.h" />
+    <ClInclude Include="stack.h" />
+    <ClInclude Include="stl_algo.h" />
+    <ClInclude Include="string.h" />
+    <ClInclude Include="testVector.h" />
+    <ClInclude Include="test\Lib\redbud\io\color.h" />
+    <ClInclude Include="test\Lib\redbud\platform.h" />
+    <ClInclude Include="test\test.h" />
     <ClInclude Include="type_traits.h" />
     <ClInclude Include="uninitialized.h" />
+    <ClInclude Include="unordered_set.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test.cpp" />
+    <ClCompile Include="unordered_map.h" />
+    <ClCompile Include="源.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

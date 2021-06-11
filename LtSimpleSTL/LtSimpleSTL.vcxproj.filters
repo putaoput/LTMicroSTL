@@ -34,6 +34,21 @@
     <Filter Include="头文件\algorithm">
       <UniqueIdentifier>{ec5f6ac2-b959-433b-9e4e-c796a352e89d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\序列式容器">
+      <UniqueIdentifier>{d9ba8549-4cb5-4f2c-af25-d204d25a8ea6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\关联式容器">
+      <UniqueIdentifier>{fa0e00d7-c31d-4513-88ad-2ce75bbe45c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\哈希容器">
+      <UniqueIdentifier>{2ae622a0-a881-4c77-8c97-051169843bbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\test">
+      <UniqueIdentifier>{e5cdb88f-9a7c-42b6-aea6-27d24788bb24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\test\testLab">
+      <UniqueIdentifier>{e89a414e-e2b2-452b-b498-eb814e8430d1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="type_traits.h">
@@ -41,9 +56,6 @@
     </ClInclude>
     <ClInclude Include="rb_tree.h">
       <Filter>头文件\basic data structure</Filter>
-    </ClInclude>
-    <ClInclude Include="functional.h">
-      <Filter>头文件\function</Filter>
     </ClInclude>
     <ClInclude Include="iterator.h">
       <Filter>头文件\iteratiors</Filter>
@@ -69,9 +81,63 @@
     <ClInclude Include="algorithm.h">
       <Filter>头文件\algorithm</Filter>
     </ClInclude>
+    <ClInclude Include="algobase.h">
+      <Filter>头文件\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="vector.h">
+      <Filter>头文件\序列式容器</Filter>
+    </ClInclude>
+    <ClInclude Include="deque.h">
+      <Filter>头文件\序列式容器</Filter>
+    </ClInclude>
+    <ClInclude Include="functional.h">
+      <Filter>头文件\function</Filter>
+    </ClInclude>
+    <ClInclude Include="queue.h">
+      <Filter>头文件\序列式容器</Filter>
+    </ClInclude>
+    <ClInclude Include="stack.h">
+      <Filter>头文件\序列式容器</Filter>
+    </ClInclude>
+    <ClInclude Include="list.h">
+      <Filter>头文件\序列式容器</Filter>
+    </ClInclude>
+    <ClInclude Include="map.h">
+      <Filter>头文件\关联式容器</Filter>
+    </ClInclude>
+    <ClInclude Include="unordered_set.h">
+      <Filter>头文件\哈希容器</Filter>
+    </ClInclude>
+    <ClInclude Include="hashtable.h">
+      <Filter>头文件\basic data structure</Filter>
+    </ClInclude>
+    <ClInclude Include="stl_algo.h">
+      <Filter>头文件\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="string.h">
+      <Filter>头文件\序列式容器</Filter>
+    </ClInclude>
+    <ClInclude Include="basic_string.h">
+      <Filter>头文件\basic data structure</Filter>
+    </ClInclude>
+    <ClInclude Include="test\Lib\redbud\io\color.h">
+      <Filter>头文件\test\testLab</Filter>
+    </ClInclude>
+    <ClInclude Include="test\Lib\redbud\platform.h">
+      <Filter>头文件\test\testLab</Filter>
+    </ClInclude>
+    <ClInclude Include="test\test.h">
+      <Filter>头文件\test</Filter>
+    </ClInclude>
+    <ClInclude Include="testVector.h">
+      <Filter>头文件\test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test.cpp">
+    <ClCompile Include="unordered_map.h">
+      <Filter>头文件\哈希容器</Filter>
+    </ClCompile>
+    <ClCompile Include="源.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
