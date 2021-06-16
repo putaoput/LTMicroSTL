@@ -16,7 +16,7 @@ namespace LT
 	//struct false_type{};
 
 	//c++11之后提供了新的实现
-	/*
+	
 	template <typename T, T Var>
 	struct integral_constant
 	{
@@ -27,22 +27,14 @@ namespace LT
 		constexpr operator value_type() const noexcept { return value; }
 		constexpr value_type operator()() const noexcept { return value; } // C++14 起
 	};
-	*/
 	
-	//因为没有实现自成体系的标准库类型识别，所以需要使用标准库的true_type和false_type,以保持兼容
+	
 	template <bool Val>
-	using bool_constant = std::integral_constant<bool, Val>;
+	using bool_constant = integral_constant<bool, Val>;
 
 	using true_type = bool_constant<true>;
 	using false_type = bool_constant<false>;
 	
-
-	/*
-	struct true_type
-		: std::true_type{};
-	struct false_type
-		: std::false_type {};
-	*/
 	//由于内嵌类型申明没法表示true和false，我们在这里定义结构体表示true_type和false_type。
 	//缺省情况下, 这些特性都依照最保守的值, 接下来再依据详细的情况, 利用模版特化, 
 	//对详细的类型设定更加乐观的值.比方内置int类型的定义模版特化:

@@ -15,49 +15,6 @@ namespace LT {
 	struct bidirectional_iterator_tag: public forward_iterator_tag{};
 	struct random_access_iterator_tag: public bidirectional_iterator_tag{};
 
-	
-	//迭代器有五种型别,当继承该模板之后，就可以自动获得这一迭代器的五种类型,忘记继承该迭代器会出现问题
-	//template <class T, class Distance> struct input_iterator
-	//{
-	//	typedef input_iterator_tag	iterator_category;
-	//	typedef T					value_type;
-	//	typedef Distance			difference_type;
-	//	typedef T* pointer;
-	//	typedef T& reference;
-	//};
-	//struct output_iterator
-	//{
-	//	typedef output_iterator_tag iterator_category;
-	//	typedef void                value_type;
-	//	typedef void                difference_type;
-	//	typedef void                pointer;
-	//	typedef void                reference;
-	//};
-	//template <class T, class Distance> struct forward_iterator
-	//{
-	//	typedef forward_iterator_tag	iterator_category;
-	//	typedef T						value_type;
-	//	typedef Distance				difference_type;
-	//	typedef T* pointer;
-	//	typedef T& reference;
-	//};
-	//template <class T, class Distance> struct bidirectional_iterator
-	//{
-	//	typedef bidirectional_iterator_tag	iterator_category;
-	//	typedef T							value_type;
-	//	typedef Distance					difference_type;
-	//	typedef T* pointer;
-	//	typedef T& reference;
-	//};
-	//template <class T, class Distance> struct random_access_iterator
-	//{
-	//	typedef random_access_iterator_tag	iterator_category;
-	//	typedef T							value_type;
-	//	typedef Distance					difference_type;
-	//	typedef T* pointer;
-	//	typedef T& reference;
-	//};
-
 
 	template <class C, class V, class D = ptrdiff_t, class P = V*, class R = V&>
 	struct iterator {
@@ -68,50 +25,23 @@ namespace LT {
 		typedef D                            difference_type;
 	};
 
-	//（榨汁机）,typedef都是编译期完成，所以无需担心其带来的运行性能损失
-	template <class Iterator>
-	struct iterator_traits
-	{
-		typedef typename Iterator::iterator_category		iterator_category;
-		typedef typename Iterator::value_type				value_type;
-		typedef typename Iterator::pointer				    pointer;
-		typedef typename Iterator::reference				reference;
-		typedef typename Iterator::difference_type			difference_type;
-	};
-	//
-	//针对原生指针的偏特化版本
-	template <class T>
-	struct iterator_traits<T*>
-	{
-		typedef random_access_iterator_tag			 iterator_category;
-		typedef T                                    value_type;
-		typedef T*									 pointer;
-		typedef T&									 reference;
-		typedef ptrdiff_t                            difference_type;
-	};
 
-	//针对原生cosnt 指针的偏特化版本
-	template <class T>
-	struct iterator_traits<const T*>
-	{
-		typedef random_access_iterator_tag			 iterator_category;
-		typedef T                                    value_type;
-		typedef T*									 pointer;
-		typedef T&									 reference;
-		typedef ptrdiff_t                            difference_type;
-	};
+	//--------------------------------------------------判断是否是迭代器-------------------------------------------------------
+	//如果不是迭代器，那么返回值是short类型，如果是迭代器，那么返回值是char类型，一个是2字节，一个是1字节
+
 
 	template <class T>
-	struct has_iterator_cat
+	struct is_iter_cat
 	{
 	private:
-		struct two { char a; char b; };
-		template <class U> static two test(...);
+		template <class U> static short test(...);
 		template <class U> static char test(typename U::iterator_category* = 0);
 	public:
 		static const bool value = sizeof(test<T>(0)) == sizeof(char);
 	};
 
+
+	
 	template <class Iterator, bool>
 	struct iterator_traits_impl {};
 
@@ -136,10 +66,34 @@ namespace LT {
 	{
 	};
 
+
 	// 萃取迭代器的特性
 	template <class Iterator>
 	struct iterator_traits
-		: public iterator_traits_helper<Iterator, has_iterator_cat<Iterator>::value> {};
+		: public iterator_traits_helper<Iterator, is_iter_cat<Iterator>::value> {};
+
+	//
+	//针对原生指针的偏特化版本
+	template <class T>
+	struct iterator_traits<T*>
+	{
+		typedef random_access_iterator_tag			 iterator_category;
+		typedef T                                    value_type;
+		typedef T*									 pointer;
+		typedef T&					   				 reference;
+		typedef ptrdiff_t                            difference_type;
+	};
+
+	//针对原生cosnt 指针的偏特化版本
+	template <class T>
+	struct iterator_traits<const T*>
+	{
+		typedef random_access_iterator_tag			 iterator_category;
+		typedef T                                    value_type;
+		typedef T* pointer;
+		typedef T& reference;
+		typedef ptrdiff_t                            difference_type;
+	};
 
 	//用于确定迭代器的类型
 	template <class Iterator>
@@ -373,29 +327,17 @@ namespace LT {
 	}
 
 	//---------------------------------------------------迭代器类型判别---------------------------------------------------
-	//如果不是迭代器，那么返回值是short类型，如果是迭代器，那么返回值是char类型，一个是2字节，一个是1字节
-	template<class Iter>
-	struct is_iter_cat {
-	private:
-		//struct two { char a; char b; }{}
-		template<class U>
-		static short __test(...){}
-		template <class U>
-		static char __test(typename Iter::iterator_category* = 0);
-	public:
-		static const bool value = sizeof(__test<Iter>(0)) == sizeof(char);
-	};
 	
-
+	
+	
 	template <class T, class U, bool = is_iter_cat<iterator_traits<T>>::value>
 	struct is_iter_cat_of
 		:public LT::bool_constant<
-								std::is_convertible<typename iterator_traits<T>::iterator_category, U>::value //用来指示是否可以进行类型转换
-							>
+		std::is_convertible<typename iterator_traits<T>::iterator_category, U>::value //用来指示是否可以进行类型转换
+		>
 	{
 
 	};
-	
 	template <class T, class U>
 	struct is_iter_cat_of<T, U, false> : public false_type {};
 	
