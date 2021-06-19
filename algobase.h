@@ -4,9 +4,10 @@
 
 //该头文件负责实现常见泛型算法。目前已经实现的有：
 //max,min,swap
-//copy，fill,fill_n,copy_backward
+//copy，fill,fill_n,copy_backward,copy_if,copy_n
 //equal
 //lexicographical_compare。新增一个自定义循环逻辑比较算法lexicographical_loop_compare
+//mismatch
 #include "iterator.h"
 #include "util.h"
 #include "functional.h"
@@ -230,6 +231,46 @@ namespace LT {
 	{
 		return __copy_backward(_first, _end, _endResult);
 	}
+	
+	//copy_if
+	//把[first,end]区间内满足条件的元素拷贝到result为起始的位置
+	//unary_pred:是一个一元操作符
+	template<class InputIter, class OutputIter, class UnaryPredicate>
+	OutputIter copy_if(InputIter _first, InputIter _end, OutputIter _result, UnaryPredicate _unaryPred)
+	{
+		size_t n = static_cast<size_t>(LT::distance(_first, _end));
+		for (; n; --n, ++_first)
+		{
+			if (_unaryPred(*_first))
+			{
+				*_result++ = *_first;
+			}
+		}
+	}
+
+	//copy_n
+	//把以first为起始的n个元素拷贝到result为起始的位置
+	template<class InputIter, class Size, class OutputIter>
+	OutputIter __copy_n(InputIter _first, Size _n, OutputIter _result, LT::input_iterator_tag)
+	{
+		for (; _n; --_n, ++_first, ++_result)
+		{
+			*_result = *_first;
+		}
+		return _result;
+	}
+
+	template<class InputIter, class Size, class OutputIter>
+	OutputIter __copy_n(InputIter _first, Size _n, OutputIter _result, LT::random_access_iterator_tag)
+	{
+		return LT::copy(_first, _first + _n, _result);
+	}
+
+	template<class InputIter, class Size, class OutputIter>
+	OutputIter copy_n(InputIter _first, Size _n, OutputIter _result)
+	{
+		return __copy_n(_first, _n, _result, LT::iterator_category(_first));
+	}
 
 	//-----------------------------------------------move-------------------------------------------------------------
 	//迭代器版本
@@ -444,4 +485,41 @@ namespace LT {
 		return result != 0 ? result < 0 : len1 < len2;
 	}
 	*/
+
+
+	//-----------------------------------------------mismatch------------------------------------------------------------
+	//比较两个序列，找到两个序列中第一个不同的地方
+	//返回两个迭代器分别指向两个序列中不同的元素
+	template<class InputIter1, class InputIter2>
+	LT::pair<InputIter1, InputIter2> mismatch(InputIter1 _first1, InputIter1 _end1, InputIter2 _first2)
+	{
+		size_t n = static_cast<size_type> (LT::distance(_first1, _end1));
+		for (; _n; --_n)
+		{
+			if (*_first1 != *_first2) { break; }
+			else { 
+				++_first1;
+				++_first2;
+			}
+		}
+
+		return LT::make_pair(_first1, _first2);
+	}
+
+	template<class InputIter1, class InputIter2, class Comp>
+	LT::pair<InputIter1, InputIter2> mismatch(InputIter1 _first1, InputIter1 _end1, InputIter2 _first2, Comp _cmp)
+	{
+		size_t n = static_cast<size_type> (LT::distance(_first1, _end1));
+		for (; _n; --_n)
+		{
+			if (!_cmp(*_first1, *_first2)) { break; }
+			else {
+				++_first1;
+				++_first2;
+			}
+		}
+
+		return LT::make_pair(_first1, _first2);
+	}
 }
+

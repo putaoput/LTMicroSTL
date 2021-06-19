@@ -17,7 +17,7 @@ namespace LT {
 		//std::forward<T>(u)有两个参数：T 与 u。当T为左值引用类型时，u将被转换为T类型的左值，否则u将被转换为T类型右值。
 		//std::move是无条件的转为右值引用，而std::forward是有条件的转为右值引用
 	template <class T>
-	typename std::remove_reference<T>::type&& move(T&& _args) noexcept
+	typename std::remove_reference<T>::type&& move(T&& _args) 
 	{
 		return static_cast<typename std::remove_reference<T>::type&&>(_args);
 	}

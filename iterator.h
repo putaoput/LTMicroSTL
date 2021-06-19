@@ -252,7 +252,7 @@ namespace LT {
 			return *this;
 		}
 
-		R_Iterator& operator-(difference_type _n) {
+		R_Iterator operator-(difference_type _n) {
 			return R_Iterator(cur + _n);
 		}
 
@@ -261,7 +261,7 @@ namespace LT {
 			return *this;
 		}
 
-		R_Iterator& operator+(difference_type _n) {
+		R_Iterator operator+(difference_type _n) {
 			return R_Iterator(cur - _n);
 		}
 

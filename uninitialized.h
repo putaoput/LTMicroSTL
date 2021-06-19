@@ -153,13 +153,13 @@ namespace LT {
 	}
 	//------------------------------------------------------uninitialized_move----------------------------------------------------
 	template <typename InputIterator, class ForwardIterator>
-	ForwardIterator __uninitialized_move(InputIterator _first, InputIterator _end, ForwardIterator _result, true_type)
+	ForwardIterator __uninitialized_move(InputIterator _first, InputIterator _end, ForwardIterator _result, std::true_type)
 	{
 		return LT::move(_first, _end, _result);
 	}
 
 	template <typename InputIterator, class ForwardIterator>
-	ForwardIterator __uninitialized_move(InputIterator _first, InputIterator _end, ForwardIterator _result, false_type)
+	ForwardIterator __uninitialized_move(InputIterator _first, InputIterator _end, ForwardIterator _result, std::false_type)
 	{
 		ForwardIterator cur = _result;
 		try

@@ -86,12 +86,17 @@ namespace LT {
 			__init_iter(_ilist.begin(), _ilist.end());
 		}
 
-		vector& operator=(const vector& _v) {
-			__init_iter(_v.begin(), _v.end());
+		vector& operator=(const vector& _rhs) 
+		{
+			if (&_rhs != this) 
+			{
+				__init_iter(_rhs.cbegin(), _rhs.cend());//为什么只能用cbegin 和 cend。
+			}
+			
 			return *this;
 		}
 
-		vector& operator=(const vector&& _v) {
+		vector& operator=(vector&& _v) {
 			//因为vector都是从堆上申请空间的，所以可以直接交换指针
 			start_ = _v.start_;
 			finish_ = _v.finish_;
@@ -221,7 +226,11 @@ namespace LT {
 		iterator insert(const_iterator _pos, size_type _n, const value_type& _value)
 		{
 
-			assert(_pos >= begin() && _pos <= end());
+			std::cout << _pos << std::endl;
+			std::cout << cbegin() << "  " << begin() << std::endl;
+			std::cout << cend() << std::endl;
+			_n;
+			assert(_pos >= cbegin() && _pos <= cend());
 			size_type needCap = size() + _n;
 			iterator pos = const_cast<iterator>(_pos);
 
@@ -242,7 +251,7 @@ namespace LT {
 				
 			}
 			else {
-				pos = __reserve_midn(LT::max(static_cast<size_type>(capacity() * EXPAN), static_cast<size_type>(1)), static_cast<size_type>(_pos - start_), static_cast<size_type>(_pos - start_), 1);
+				pos = __reserve_midn(LT::max(static_cast<size_type>(capacity() * EXPAN), static_cast<size_type>(1)),static_cast<size_type>(_pos - start_), 1);
 				__construct_mem_n(pos, _n, _value);
 			}
 			return pos;
@@ -268,7 +277,8 @@ namespace LT {
 				auto res = __move_mem_back(pos, inputSize);
 				size_type beenInitMemSize = res.first;
 				size_type unInitMemSize = res.second;
-				InputIter posMidEnd = LT::advance(_first, beenInitMemSize);
+				InputIter posMidEnd = _first;
+				LT::advance(posMidEnd, beenInitMemSize);
 				if (beenInitMemSize)
 				{
 					LT::uninitialized_copy(_first, posMidEnd, pos);
@@ -280,7 +290,7 @@ namespace LT {
 
 			}
 			else {
-				pos = __reserve_midn(LT::max(static_cast<size_type>(capacity() * EXPAN), static_cast<size_type>(1)), static_cast<size_type>(_pos - start_), static_cast<size_type>(_pos - start_), 1);
+				pos = __reserve_midn(LT::max(static_cast<size_type>(capacity() * EXPAN), static_cast<size_type>(1)),static_cast<size_type>(_pos - start_), 1);
 				LT::uninitialized_copy(_first, _end, pos);
 			}
 
@@ -308,7 +318,16 @@ namespace LT {
 
 		iterator erase(const_iterator _itBeg, const_iterator _itEnd)
 		{
+			assert(_itBeg >= cbegin() && _itEnd <= cend());
 
+			size_type preSize = _itBeg - cbegin();
+			iterator itBeg = start_ + preSize;
+			iterator itEnd = itBeg + (_itEnd - _itBeg);
+			iterator itEraseBeg = LT::move(itEnd, finish_, itBeg);
+			__destroy_mem(itEraseBeg, end());
+			finish_ = itEraseBeg;
+
+			return itEraseBeg;
 		}
 		void swap(vector<int>& _v) {
 			//进行swap之前注意判同
@@ -332,7 +351,7 @@ namespace LT {
 				finish_ = start_ + _size;
 			}
 			else {
-				__destroy_vector();
+				__destroy_vector(start_, finish_, endOfStorage_);
 				__init_n(_value, _size);
 			}
 		}
@@ -342,14 +361,14 @@ namespace LT {
 		{
 			size_type inputSize = LT::distance(_first, _end);
 			size_type oldCap = capacity();
-			if (oldCap >= inputSize + size()) {
-				__deallocate_mem(start_, endOfStorage_);
+			if (oldCap >= inputSize) {
+				__destroy_mem(start_, endOfStorage_);
 				__construct_mem_iter(start_, _first, _end);
 				finish_ = start_ + inputSize;
 			}
 			else {
-				__destroy_vector();
-				__init(_first, _end, start_, finish_, endOfStorage_);
+				__destroy_vector(start_, finish_, endOfStorage_);
+				__init_iter(_first, _end);
 			}
 		}
 		void assign(std::initializer_list<value_type> _il)
@@ -429,13 +448,12 @@ namespace LT {
 		template<class iterator>
 		void __deallocate_mem(iterator _first, iterator _endOfStorage)
 		{
-			allocator_type::deallocate(_first, static_cast<size_type>(sizeof(value_type) * (_endOfStorage - start_)));
+			allocator_type::deallocate(_first, static_cast<size_type>((_endOfStorage - start_)));
 		}
 
 
 		//实际进行vector析构的函数
-		template <class Iterator>
-		void __destroy_vector(Iterator _start = start_, Iterator _finish = finish_, Iterator _endOfStorage = endOfStorage_) {
+		void __destroy_vector(iterator _start, iterator _finish, iterator _endOfStorage) {
 			__destroy_mem(_start, _finish);
 			__deallocate_mem(_start, _endOfStorage);
 		}
@@ -569,16 +587,20 @@ namespace LT {
 		//把从_pos开始的元素在内存区域内向后移动n个距离,调用该函数的前提是空间足够大
 		LT::pair<size_type, size_type> __move_mem_back(iterator _pos, size_type _n)
 		{
-			if (_pos = finish_) { return make_pair<size_type,size_type>(0,0); }
+			if (_pos == finish_) 
+			{ 
+				finish_ += _n;
+				return make_pair<size_type,size_type>(0,0);
+			}
 			size_type backSize = finish_ - _pos;
 			//如果n比backSize小，那么是需要把n个元素移动到未初始化的内存区域
 			//如果n比backSize大，那么是需要把backSize个元素移动到未初始化的区域，其中有backSize个元素将需要被拷贝初始化
 			
 			if (_n < backSize)
 			{
-				LT::uninitialized_move(_pos, finish_, _pos + _n);//后面_n个是复制到未初始化空间,
-				size_type remainToCopy = backSize - _n;//此时还有_backSize - _n个是复制到了_pos + _n,finish_，这个区间
-				LT::move_backward(_pos, _pos + remainToCopy, finish_ + _n);
+				LT::uninitialized_move(finish_ - _n, finish_, finish_);//后面_n个是复制到未初始化空间
+				size_type remainToCopy = backSize - _n;//此时还有backSize - _n个是复制到了_pos + _n,finish_，这个区间
+				LT::move_backward(_pos, _pos + remainToCopy, finish_);
 			}
 			else
 			{
