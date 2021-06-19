@@ -493,8 +493,8 @@ namespace LT {
 	template<class InputIter1, class InputIter2>
 	LT::pair<InputIter1, InputIter2> mismatch(InputIter1 _first1, InputIter1 _end1, InputIter2 _first2)
 	{
-		size_t n = static_cast<size_type> (LT::distance(_first1, _end1));
-		for (; _n; --_n)
+		size_t n = static_cast<size_t> (LT::distance(_first1, _end1));
+		for (; n; --n)
 		{
 			if (*_first1 != *_first2) { break; }
 			else { 
@@ -509,8 +509,8 @@ namespace LT {
 	template<class InputIter1, class InputIter2, class Comp>
 	LT::pair<InputIter1, InputIter2> mismatch(InputIter1 _first1, InputIter1 _end1, InputIter2 _first2, Comp _cmp)
 	{
-		size_t n = static_cast<size_type> (LT::distance(_first1, _end1));
-		for (; _n; --_n)
+		size_t n = static_cast<size_t> (LT::distance(_first1, _end1));
+		for (; n; --n)
 		{
 			if (!_cmp(*_first1, *_first2)) { break; }
 			else {
