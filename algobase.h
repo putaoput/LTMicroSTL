@@ -50,43 +50,43 @@ namespace LT {
 	
 	//input_iterator版本
 	template<class InputItertor, class OutputIterator>
-	inline OutputIterator __copy(InputItertor _first, InputItertor _end, OutputIterator _result, LT::input_iterator_tag) {
-		for (; _first != _end; ++_first, ++_result) {
+	inline OutputIterator __copy(InputItertor _first, InputItertor _last, OutputIterator _result, LT::input_iterator_tag) {
+		for (; _first != _last; ++_first, ++_result) {
 			*_result = *_first;
 		}
 		return _result;
 	}
 	//random_iterator版本
 	template<class RandomIterator, class OutputIterator, class Distance>
-	inline OutputIterator __copy_d(RandomIterator _first, RandomIterator _end, OutputIterator _result, Distance*) {
+	inline OutputIterator __copy_d(RandomIterator _first, RandomIterator _last, OutputIterator _result, Distance*) {
 		//用n来决定循环次数，速度更快。
-		for (Distance n = _end - _first; n; --n, ++_result, ++_first) {
+		for (Distance n = _last - _first; n; --n, ++_result, ++_first) {
 			*_result = *_first;
 		}
 		return _result;
 	}
 	template<class RandomItertor, class OutputIterator>
-	inline OutputIterator __copy(RandomItertor _first, RandomItertor _end, OutputIterator _result, LT::random_access_iterator_tag) {
-		for (; _first != _end; ++_first, ++_result) {
+	inline OutputIterator __copy(RandomItertor _first, RandomItertor _last, OutputIterator _result, LT::random_access_iterator_tag) {
+		for (; _first != _last; ++_first, ++_result) {
 			*_result = *_first;
 		}
 		return _result;
 	}
 	//原生指针版本
 	template<class T>
-	inline T* __copy_t(const T* _first, const T* _end, T* _result, true_type) {
-		std::memmove(_result, _first, sizeof(T) * (_end - _first));
-		return _result + (_end - _first);
+	inline T* __copy_t(const T* _first, const T* _last, T* _result, true_type) {
+		std::memmove(_result, _first, sizeof(T) * (_last - _first));
+		return _result + (_last - _first);
 	}
 
 	template<class T>
-	inline T* __copy_t(const T* _first, const T* _end, T* _result, false_type) {
-		return __copy_d(_first, _end, _result, (ptrdiff_t*)0);
+	inline T* __copy_t(const T* _first, const T* _last, T* _result, false_type) {
+		return __copy_d(_first, _last, _result, (ptrdiff_t*)0);
 	}
 	//__copy_dispatch
 	template<class InputIterator, class OutputIterator>
-	inline OutputIterator __copy_dispatch(InputIterator _first, InputIterator _end, OutputIterator _result) {
-		return __copy(_first, _end, _result, LT::iterator_category(_first));
+	inline OutputIterator __copy_dispatch(InputIterator _first, InputIterator _last, OutputIterator _result) {
+		return __copy(_first, _last, _result, LT::iterator_category(_first));
 	}
 
 	template<class Tp,class Up>
@@ -94,9 +94,9 @@ namespace LT {
 		std::is_same<typename std::remove_const<Tp>::type, Up>::value &&
 		std::is_trivially_copy_assignable<Up>::value,
 		Up*>::type
-	 __copy_dispatch(Tp* _first, Tp* _end, Up* _result) {
+	 __copy_dispatch(Tp* _first, Tp* _last, Up* _result) {
 		typedef typename _type_traits<Tp>::has_trivial_assignment_operator is_true_type;
-		return __copy_t(_first, _end, _result, is_true_type());
+		return __copy_t(_first, _last, _result, is_true_type());
 	}
 
 	
@@ -107,13 +107,13 @@ namespace LT {
 	}
 
 	//加速重载版本
-	inline char* copy(const char* _first, const char* _end, char* _result) {
-		std::memmove(_result, _first, _end - _first);
-		return _result + (_end - _first);
+	inline char* copy(const char* _first, const char* _last, char* _result) {
+		std::memmove(_result, _first, _last - _first);
+		return _result + (_last - _first);
 	}
-	inline wchar_t* copy(const wchar_t* _first, const wchar_t* _end, wchar_t* _result) {
-		std::memmove(_result, _first, _end - _first);
-		return _result + (_end - _first);
+	inline wchar_t* copy(const wchar_t* _first, const wchar_t* _last, wchar_t* _result) {
+		std::memmove(_result, _first, _last - _first);
+		return _result + (_last - _first);
 	}
 
 
@@ -161,28 +161,28 @@ namespace LT {
 	}
 
 	template <class RandomIter, class T>//支持随机访问说明是连续内存
-	void __fill(RandomIter _first, RandomIter _end, const T& _value,LT::random_access_iterator_tag)
+	void __fill(RandomIter _first, RandomIter _last, const T& _value,LT::random_access_iterator_tag)
 	{
-		LT::fill_n(_first, _end - _first, _value);
+		LT::fill_n(_first, _last - _first, _value);
 	}
 
 	template <class ForwardIter, class T>
-	void fill(ForwardIter _first, ForwardIter _end, const T& _value)
+	void fill(ForwardIter _first, ForwardIter _last, const T& _value)
 	{
-		__fill(_first, _end, _value, iterator_category(_first));
+		__fill(_first, _last, _value, iterator_category(_first));
 	}
 
 //----------------------------------------------------- copy_backward------------------------------------------------
-// 将 [_first, _end)区间内的元素拷贝到 [_endResult - (_end - _first), _endResult)内
+// 将 [_first, _last)区间内的元素拷贝到 [_endResult - (_last - _first), _endResult)内
 
 	template <class BidirectionalIter1, class BidirectionalIter2>
 	BidirectionalIter2
-		__copy_backward_dispatch(BidirectionalIter1 _first, BidirectionalIter1 _end,
+		__copy_backward_dispatch(BidirectionalIter1 _first, BidirectionalIter1 _last,
 			BidirectionalIter2 _endResult, LT::bidirectional_iterator_tag)
 	{
-		while (_first != _end)
+		while (_first != _last)
 		{
-			*--_endResult = *--_end;
+			*--_endResult = *--_last;
 		}
 			
 		return _endResult;
@@ -191,20 +191,20 @@ namespace LT {
 	//  random_access_iterator_tag 版本
 	template <class BidirectionalIter1, class BidirectionalIter2>
 	BidirectionalIter2
-		__copy_backward_dispatch(BidirectionalIter1 _first, BidirectionalIter1 _end,
+		__copy_backward_dispatch(BidirectionalIter1 _first, BidirectionalIter1 _last,
 			BidirectionalIter2 _endResult, LT::random_access_iterator_tag)
 	{
-		for (auto n = _end - _first; n > 0; --n)
-			*--_endResult = *--_end;
+		for (auto n = _last - _first; n > 0; --n)
+			*--_endResult = *--_last;
 		return _endResult;
 	}
 
 	template <class BidirectionalIter1, class BidirectionalIter2>
 	BidirectionalIter2
-		__copy_backward(BidirectionalIter1 _first, BidirectionalIter1 _end,
+		__copy_backward(BidirectionalIter1 _first, BidirectionalIter1 _last,
 			BidirectionalIter2 _endResult)
 	{
-		return __copy_backward_dispatch(_first, _end, _endResult,
+		return __copy_backward_dispatch(_first, _last, _endResult,
 			iterator_category(_first));
 	}
 
@@ -214,9 +214,9 @@ namespace LT {
 		std::is_same<typename std::remove_const<Tp>::type, Up>::value&&
 		std::is_trivially_copy_assignable<Up>::value,
 		Up*>::type
-		__copy_backward(Tp* _first, Tp* _end, Up* _endResult)
+		__copy_backward(Tp* _first, Tp* _last, Up* _endResult)
 	{
-		const auto n = static_cast<size_t>(_end - _first);
+		const auto n = static_cast<size_t>(_last - _first);
 		if (n != 0)
 		{
 			_endResult -= n;
@@ -227,18 +227,18 @@ namespace LT {
 
 	template <class BidirectionalIter1, class BidirectionalIter2>
 	BidirectionalIter2
-		copy_backward(BidirectionalIter1 _first, BidirectionalIter1 _end, BidirectionalIter2 _endResult)
+		copy_backward(BidirectionalIter1 _first, BidirectionalIter1 _last, BidirectionalIter2 _endResult)
 	{
-		return __copy_backward(_first, _end, _endResult);
+		return __copy_backward(_first, _last, _endResult);
 	}
 	
 	//copy_if
 	//把[first,end]区间内满足条件的元素拷贝到result为起始的位置
 	//unary_pred:是一个一元操作符
 	template<class InputIter, class OutputIter, class UnaryPredicate>
-	OutputIter copy_if(InputIter _first, InputIter _end, OutputIter _result, UnaryPredicate _unaryPred)
+	OutputIter copy_if(InputIter _first, InputIter _last, OutputIter _result, UnaryPredicate _unaryPred)
 	{
-		size_t n = static_cast<size_t>(LT::distance(_first, _end));
+		size_t n = static_cast<size_t>(LT::distance(_first, _last));
 		for (; n; --n, ++_first)
 		{
 			if (_unaryPred(*_first))
@@ -275,9 +275,9 @@ namespace LT {
 	//-----------------------------------------------move-------------------------------------------------------------
 	//迭代器版本
 	template<class InputIterator, class OutputIterator>
-	OutputIterator __move_dispatch(InputIterator _first, InputIterator _end, OutputIterator _result, random_access_iterator_tag)
+	OutputIterator __move_dispatch(InputIterator _first, InputIterator _last, OutputIterator _result, random_access_iterator_tag)
 	{
-		size_t n = LT::distance(_first, _end);
+		size_t n = LT::distance(_first, _last);
 		for (; n; --n, ++_first, ++_result)
 		{
 			*_result = LT::move(*_first);
@@ -286,9 +286,9 @@ namespace LT {
 	}
 
 	template<class InputIterator, class OutputIterator>
-	OutputIterator __move_dispatch(InputIterator _first, InputIterator _end, OutputIterator _result, forward_iterator_tag)
+	OutputIterator __move_dispatch(InputIterator _first, InputIterator _last, OutputIterator _result, forward_iterator_tag)
 	{
-		size_t n = LT::distance(_first, _end);
+		size_t n = LT::distance(_first, _last);
 		for (; n; --n, ++_first, ++_result)
 		{
 			*_result = LT::move(*_first);
@@ -297,9 +297,9 @@ namespace LT {
 	}
 
 	template<class InputIterator, class OutputIterator>
-	OutputIterator __move(InputIterator _first, InputIterator _end, OutputIterator _result)
+	OutputIterator __move(InputIterator _first, InputIterator _last, OutputIterator _result)
 	{
-		return __move_dispatch(_first, _end, _result,LT::iterator_category(_first));
+		return __move_dispatch(_first, _last, _result,LT::iterator_category(_first));
 	}
 	
 
@@ -309,46 +309,46 @@ namespace LT {
 		std::is_same<typename std::remove_const<Tp>::type, Up>::value && 
 		std::is_trivially_move_assignable<Tp>::value,
 		Up*>::type
-		__move(Tp* _first, Tp* _end, Up* _result)
+		__move(Tp* _first, Tp* _last, Up* _result)
 	{
-		const size_t n = static_cast<size_t>(_end - _first);
+		const size_t n = static_cast<size_t>(_last - _first);
 		n && std::memmove(_result, _first, n * sizeof(Tp));
 		return _result + n;
 	}
 
 	template<class InputIterator, class OutputIterator>
-	OutputIterator move(InputIterator _first, InputIterator _end, OutputIterator _result)
+	OutputIterator move(InputIterator _first, InputIterator _last, OutputIterator _result)
 	{
-		return __move(_first, _end, _result);
+		return __move(_first, _last, _result);
 	}
 	//-------------------------------------------------------move_backward()-----------------------------------------------
 		//迭代器版本
 	template<class InputIterator, class OutputIterator>
-	OutputIterator __move_backward_dispatch(InputIterator _first, InputIterator _end, OutputIterator _endResult, random_access_iterator_tag)
+	OutputIterator __move_backward_dispatch(InputIterator _first, InputIterator _last, OutputIterator _endResult, random_access_iterator_tag)
 	{
-		size_t n = _end - _first;
+		size_t n = _last - _first;
 		for (; n; --n)
 		{
-			*--_endResult = LT::move(*--_end);
+			*--_endResult = LT::move(*--_last);
 		}
 		return _endResult;
 	}
 
 	template<class InputIterator, class OutputIterator>
-	OutputIterator __move_backward_dispatch(InputIterator _first, InputIterator _end, OutputIterator _endResult, forward_iterator_tag)
+	OutputIterator __move_backward_dispatch(InputIterator _first, InputIterator _last, OutputIterator _endResult, forward_iterator_tag)
 	{
-		size_t n = LT::distance(_first, _end);
+		size_t n = LT::distance(_first, _last);
 		for (; n; --n)
 		{
-			*--_endResult = LT::move(*--_end);
+			*--_endResult = LT::move(*--_last);
 		}
 		return _endResult;
 	}
 
 	template<class InputIterator, class OutputIterator>
-	OutputIterator move_backward(InputIterator _first, InputIterator _end, OutputIterator _endResult)
+	OutputIterator move_backward(InputIterator _first, InputIterator _last, OutputIterator _endResult)
 	{
-		return __move_backward_dispatch(_first, _end, _endResult, LT::iterator_category(_first));
+		return __move_backward_dispatch(_first, _last, _endResult, LT::iterator_category(_first));
 	}
 
 
@@ -357,8 +357,8 @@ namespace LT {
 	//该函数负责比较两组迭代器所指的两个区间上的元素值是否相等。
 	//两组迭代器可以是不同类型，但是迭代器的value_type要相等。
 	template <typename InputIterator1, typename InputIterator2>
-	bool equal(InputIterator1 _first1, InputIterator1 _end, InputIterator2 _first2) {
-		for (; _first1 != _end; ++_first1, ++_first2) {
+	bool equal(InputIterator1 _first1, InputIterator1 _last, InputIterator2 _first2) {
+		for (; _first1 != _last; ++_first1, ++_first2) {
 			if (*_first1 != *_first2) {
 				return false;
 			}
@@ -367,8 +367,8 @@ namespace LT {
 	}
 
 	template <typename InputIterator1, typename InputIterator2, typename Comp>
-	bool equal(InputIterator1 _first1, InputIterator1 _end, InputIterator2 _first2, Comp _cmp) {
-		for (; _first1 != _end; ++_first1, ++_first2) {
+	bool equal(InputIterator1 _first1, InputIterator1 _last, InputIterator2 _first2, Comp _cmp) {
+		for (; _first1 != _last; ++_first1, ++_first2) {
 			if (!_cmp(*_first1  *_first2)) {
 				return false;
 			}

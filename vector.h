@@ -44,38 +44,32 @@ namespace LT {
 	public:
 		//写一些构造函数
 		vector() :start_(0), finish_(0), endOfStorage_(0) {}
-
 		explicit vector(const size_type _n)
 			:start_(0), finish_(0), endOfStorage_(0)
 		{
 			__init_n(_n, T());
 		}
-
 		vector(const size_type _n, const value_type& _value)
 			:start_(0), finish_(0), endOfStorage_(0)
 		{
 			__init_n(_n, _value);
 		}
-
 		template<typename InputIter,
 			typename LT::enable_if<is_input_iterator<InputIter>::value, int>::type = 0>
-			vector(InputIter _first, InputIter _end)
+		vector(InputIter _first, InputIter _last)
 			: start_(0), finish_(0), endOfStorage_(0)
 		{
-			__init_iter(_first, _end);
+			__init_iter(_first, _last);
 		}
-
 		vector(const vector& _v)
 			:start_(0), finish_(0), endOfStorage_(0)
 		{
 			__init_iter(_v.cbegin(), _v.cend());
 		}
-
 		vector(vector&& _v)
 			:start_(_v.start_),finish_(_v.finish_), endOfStorage_(_v.endOfStorage_)
 		{
 			//因为vector都是从堆上申请空间的，所以可以直接交换指针
-			
 			_v.start_ = static_cast<iterator>(nullptr);
 			_v.finish_ = static_cast<iterator>(nullptr);
 			_v.endOfStorage_ = static_cast<iterator>(nullptr);
@@ -97,7 +91,6 @@ namespace LT {
 			
 			return *this;
 		}
-
 		vector& operator=(vector&& _v) {
 			//因为vector都是从堆上申请空间的，所以可以直接交换指针
 			start_ = _v.start_;
@@ -216,7 +209,7 @@ namespace LT {
 				
 			}
 			else {
-				pos = __reserve_midn(LT::max(static_cast<size_type>(capacity() * EXPAN), static_cast<size_type>(1)), static_cast<size_type>(_pos - start_), static_cast<size_type>(_pos - start_), 1);
+				pos = __reserve_midn(__get_new_memSize(needCap), static_cast<size_type>(_pos - start_), static_cast<size_type>(_pos - start_), 1);
 				__construct_mem_n(pos,1, _value);
 			}
 			return pos;
@@ -244,7 +237,7 @@ namespace LT {
 				
 			}
 			else {
-				pos = __reserve_midn(LT::max(static_cast<size_type>(capacity() * EXPAN), static_cast<size_type>(1)),static_cast<size_type>(_pos - start_), 1);
+				pos = __reserve_midn(__get_new_memSize(needCap),static_cast<size_type>(_pos - start_), 1);
 				__construct_mem_n(pos, _n, _value);
 			}
 			return pos;
@@ -257,10 +250,10 @@ namespace LT {
 		}
 		template <class InputIter,
 				 typename LT::enable_if<is_input_iterator<InputIter>::value, int>::type = 0>
-		iterator insert(const_iterator _pos, InputIter _first, InputIter _end) 
+		iterator insert(const_iterator _pos, InputIter _first, InputIter _last) 
 		{ 
 			assert(_pos >= begin() && _pos <= end());
-			size_type inputSize = LT::distance(_first, _end);
+			size_type inputSize = LT::distance(_first, _last);
 			size_type needCap = size() + inputSize;
 			iterator pos = const_cast<iterator>(_pos);
 			if (capacity() >= needCap)
@@ -276,13 +269,13 @@ namespace LT {
 				}
 				if (unInitMemSize)
 				{
-					LT::uninitialized_copy(posMidEnd, _end, finish_);
+					LT::uninitialized_copy(posMidEnd, _last, finish_);
 				}
 
 			}
 			else {
-				pos = __reserve_midn(LT::max(static_cast<size_type>(capacity() * EXPAN), static_cast<size_type>(1)),static_cast<size_type>(_pos - start_), 1);
-				LT::uninitialized_copy(_first, _end, pos);
+				pos = __reserve_midn(__get_new_memSize(needCap),static_cast<size_type>(_pos - start_), 1);
+				LT::uninitialized_copy(_first, _last, pos);
 			}
 
 			return pos;
@@ -299,18 +292,16 @@ namespace LT {
 			return *__emplace(end(), LT::forward<Args>(_value)...);
 		}
 
-		iterator erase(iterator _pos) {
-			if (_pos + 1 != end()) {
-				copy(_pos + 1, finish_, _pos);
-			}
-
+		iterator erase(const_iterator _pos) {
+			assert(_pos >= start_ && _pos < finish_);
+			iterator eraseBeg = start_ + (_pos - cbegin());
+			LT::move(eraseBeg + 1, finish_, eraseBeg);
 			--finish_;
-			return _pos;
+			return eraseBeg;
 		}
 		iterator erase(const_iterator _itBeg, const_iterator _itEnd)
 		{
-			assert(_itBeg >= cbegin() && _itEnd <= cend());
-
+			assert(_itBeg >= start_ && _itEnd < finish_);
 			size_type preSize = _itBeg - cbegin();
 			iterator itBeg = start_ + preSize;
 			iterator itEnd = itBeg + (_itEnd - _itBeg);
@@ -347,18 +338,18 @@ namespace LT {
 			}
 		}
 		template <class InputIter, typename LT::enable_if<is_input_iterator<InputIter>::value, int>::type = 0>
-		void assign(InputIter _first, InputIter _end)
+		void assign(InputIter _first, InputIter _last)
 		{
-			size_type inputSize = LT::distance(_first, _end);
+			size_type inputSize = LT::distance(_first, _last);
 			size_type oldCap = capacity();
 			if (oldCap >= inputSize) {
 				__destroy_mem(start_, endOfStorage_);
-				__construct_mem_iter(start_, _first, _end);
+				__construct_mem_iter(start_, _first, _last);
 				finish_ = start_ + inputSize;
 			}
 			else {
 				__destroy_vector(start_, finish_, endOfStorage_);
-				__init_iter(_first, _end);
+				__init_iter(_first, _last);
 			}
 		}
 		void assign(std::initializer_list<value_type> _il)
@@ -427,10 +418,10 @@ namespace LT {
 		}
 
 		//析构对象的函数
-		void __destroy_mem(iterator _first, iterator _end)
+		void __destroy_mem(iterator _first, iterator _last)
 		{
 			//下一层construct函数会自己进行类型萃取，识别是否需要调用析构函数
-			LT::destroy(_first, _end);
+			LT::destroy(_first, _last);
 		}
 		//释放内存
 		template<class iterator>
@@ -442,6 +433,22 @@ namespace LT {
 		void __destroy_vector(iterator _start, iterator _finish, iterator _endOfStorage) {
 			__destroy_mem(_start, _finish);
 			__deallocate_mem(_start, _endOfStorage);
+		}
+
+		//用于确定扩容是需要的新容量大小
+		size_type __get_new_memSize(size_type _needSize)
+		{
+			size_type initCap = max(static_cast<size_type>(1), capacity());
+			while (initCap < _needSize && static_cast<size_type>(initCap * EXPAN) == initCap)//防止出现由于EXPAN系数小而无法扩容的bug
+			{
+				++initCap;
+			}
+			while (initCap < _needSize)
+			{
+				initCap *= EXPAN;
+				
+			}
+			return initCap;
 		}
 
 		//-------------------------------------------初始化函数----------------------------------------------------------------------
@@ -456,33 +463,33 @@ namespace LT {
 		}
 		//提供输入一组迭代器的_init版本
 		template<typename InputIterator>
-		void __init_iter(InputIterator _first, InputIterator _end) 
+		void __init_iter(InputIterator _first, InputIterator _last) 
 		{
 
 			//先确定长度
-			int needSize = LT::distance(_first, _end);
+			int needSize = LT::distance(_first, _last);
 			if (needSize <= 0) { return; }
 
 			//然后申请空间
 			iterator newMem = __get_mem(needSize);
 
-			LT::uninitialized_copy(_first, _end, newMem);
+			LT::uninitialized_copy(_first, _last, newMem);
 			start_ = newMem;
 			finish_ = newMem + needSize;
 			endOfStorage_ = newMem + needSize;
 		}	
 		//如果输入的一组迭代器可以确定是在一片连续内存上，那么可以使用特化版本
 		template<>
-		void __init_iter<const_iterator>(const_iterator _first, const_iterator _end)
+		void __init_iter<const_iterator>(const_iterator _first, const_iterator _last)
 		{
 
 			//先确定长度
-			int needSize = LT::distance(_first, _end);
+			int needSize = LT::distance(_first, _last);
 			if (needSize <= 0) { return; }
 
 			//然后申请空间
 			iterator newMem = __get_mem(needSize);
-			LT::uninitialized_copy(_first, _end, newMem);
+			LT::uninitialized_copy(_first, _last, newMem);
 			
 			start_ = newMem;
 			finish_ = newMem + needSize;
@@ -492,20 +499,20 @@ namespace LT {
 		//提供输入一组迭代器的,并且给定容量的_init版本,如果给定的容量小于输入迭代器的大小，将会只拷贝给定容量,
 		//如果给_copySize大于那组输入迭代器所管理区域的元素的数量，额外的元素将被初始化给定的值_extrVal
 		//所以该函数保证分配的容量为_n。使用了此版本的__init(),将可能不会复制所有待拷贝对象(_n < copySize)。
-		//该函数至少会初始化n个对象，其中有min(_copySize,_end - _first)个是拷贝初始化。
+		//该函数至少会初始化n个对象，其中有min(_copySize,_last - _first)个是拷贝初始化。
 		//但是调用此版本除了reverse,都是_n > copySize。
 		//该函数写的不是很好
 		template<typename InputIterator>
-		void __init_iter_n(size_type _n ,InputIterator _first, InputIterator _end,
+		void __init_iter_n(size_type _n ,InputIterator _first, InputIterator _last,
 			iterator _start, iterator _finish, iterator _endOfStorage, 
 			size_type _copySize = 0, const T& _extrVal = T())
 		{
 			
 			//先确定长度
-			if (!_copySize) { _copySize = LT::distance(_first, _end); }
-			size_type copySize = min(_copySize, static_cast<size_type>(_end - _first));
+			if (!_copySize) { _copySize = LT::distance(_first, _last); }
+			size_type copySize = min(_copySize, static_cast<size_type>(_last - _first));
 			size_type needSize = _n;
-			size_type extrConsSize = copySize - static_cast<size_type>(_end - _first);
+			size_type extrConsSize = copySize - static_cast<size_type>(_last - _first);
 			if (needSize <= 0) { return; }
 
 			//然后申请空间
@@ -624,17 +631,18 @@ namespace LT {
 		}
 		iterator __reserve_midn(size_type _newCap, size_type _pos, size_type _n)
 		{
-			//该函数会进行扩容，与reserver不同的是，它会在中间第pos个位置开始，留出_n个未初始化的空间
+			//该函数会进行扩容,但是扩容之后的容量就是_newCap，与reserver不同的是，它会在中间第pos个位置开始，留出_n个未初始化的空间
 			//调用该函数的前提就是当前的容量小于新容量,但是这里为了性能不做断言。
 			//该函数会设置好新的start_, finish_,endOfStorage
 			pointer newMem = __get_mem(_newCap);
-			assert(_pos <= size());
+			size_type oldSize = size();
+			assert(_pos <= oldSize);
 			LT::uninitialized_move(start_, start_ + _pos, newMem);
 			LT::uninitialized_move( start_ + _pos, finish_ ,newMem + _pos + _n);
 			__destroy_mem(start_, finish_);
 			__deallocate_mem(start_, endOfStorage_);
 			start_ = newMem;
-			finish_ = start_ + _pos + _n;
+			finish_ = start_ + oldSize + _n;
 			endOfStorage_ = start_ + _newCap;
 			return _pos + start_;
 		}
@@ -654,7 +662,7 @@ namespace LT {
 				LT::construct(LT::address_of(*pos), LT::forward<Args>(_args)...);
 			}
 			else {
-				pos = __reserve_midn(LT::max(static_cast<size_type>(capacity() * EXPAN), static_cast<size_type>(1)), static_cast<size_type>(_pos - start_), 1);
+				pos = __reserve_midn(__get_new_memSize(needCap), static_cast<size_type>(_pos - start_), 1);
 				LT::construct(LT::address_of(*pos), LT::forward<Args>(_args)...);
 			}
 			return pos;
