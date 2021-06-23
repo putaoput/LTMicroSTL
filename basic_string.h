@@ -85,16 +85,15 @@ namespace LT {
             return r;
         }
 
-        static char_type* fill(char_type* _dst, char_type _ch, size_t count)
+        static char_type* fill(char_type* _dst, char_type _ch, size_t _count)
         {
             char_type* r = _dst;
-            for (; count > 0; --count, ++_dst)
+            for (; _count > 0; --_count, ++_dst)
                 *_dst = _ch;
             return r;
         }
     };
 
-  
     template <>
     struct char_traits<char>
     {
@@ -121,9 +120,9 @@ namespace LT {
             return static_cast<char_type*>(std::memmove(_dst, _src, _n));
         }
 
-        static char_type* fill(char_type* _dst, char_type _ch, size_t count)  
+        static char_type* fill(char_type* _dst, char_type _ch, size_t _count)  
         {
-            return static_cast<char_type*>(std::memset(_dst, _ch, count));
+            return static_cast<char_type*>(std::memset(_dst, _ch, _count));
         }
     };
 
@@ -154,13 +153,12 @@ namespace LT {
             return static_cast<char_type*>(std::wmemmove(_dst, _src, _n));
         }
 
-        static char_type* fill(char_type* _dst, char_type _ch, size_t count)  
+        static char_type* fill(char_type* _dst, char_type _ch, size_t _count)  
         {
-            return static_cast<char_type*>(std::wmemset(_dst, _ch, count));
+            return static_cast<char_type*>(std::wmemset(_dst, _ch, _count));
         }
     };
 
-    
     template <>
     struct char_traits<char16_t>
     {
@@ -213,16 +211,15 @@ namespace LT {
             return r;
         }
 
-        static char_type* fill(char_type* _dst, char_type _ch, size_t count)  
+        static char_type* fill(char_type* _dst, char_type _ch, size_t _count)  
         {
             char_type* r = _dst;
-            for (; count > 0; --count, ++_dst)
+            for (; _count > 0; --_count, ++_dst)
                 *_dst = _ch;
             return r;
         }
     };
-
-    
+ 
     template <>
     struct char_traits<char32_t>
     {
@@ -275,15 +272,14 @@ namespace LT {
             return r;
         }
 
-        static char_type* fill(char_type* _dst, char_type _ch, size_t count)  
+        static char_type* fill(char_type* _dst, char_type _ch, size_t _count)  
         {
             char_type* r = _dst;
-            for (; count > 0; --count, ++_dst)
+            for (; _count > 0; --_count, ++_dst)
                 *_dst = _ch;
             return r;
         }
     };
-
 
 
 	template<class T, class Traits = char_traits<T>, class Alloc = allocator<T>>
@@ -349,7 +345,7 @@ namespace LT {
         }
 
         template <class InputIter, 
-                     typename LT::enable_if<LT::is_input_iterator<InputIter>::_value, int>::type = 0>
+                   typename LT::enable_if<LT::is_input_iterator<InputIter>::value, int>::type = 0>
         basic_string(InputIter _itBeg, InputIter _itEnd)
         {
             __init_iter(_itBeg, _itEnd);
@@ -388,7 +384,7 @@ namespace LT {
         {
             __init_ptr(_strPtr);
         }
-        basic_string& operator=(value_type _ch)
+        basic_string& operator=(const value_type _ch)
         {
             __init_value(1,_ch);
         }
@@ -414,6 +410,7 @@ namespace LT {
 
         //容量相关
         size_type size() const { return size_; }
+        size_type max_size()const { return static_cast<size_type>(-1); }
         size_type length() const { return size(); }
         size_type capacity() const { return capacity_; }
         void clear() {
@@ -444,12 +441,15 @@ namespace LT {
 
 
         //访问元素相关
-        value_type& operator[] (size_type _pos) { return *(strPtr_ + _pos); }
-        value_type operator[] (size_type _pos) const { return *(strPtr_ + _pos); }
-        value_type& back() { return *(strPtr_ + size_ - 1); }
-        value_type back() const { return *(strPtr_ + size_ - 1); }
-        value_type& front() { return *(strPtr_); }
-        value_type front() const { return *(strPtr_); }
+        reference operator[] (size_type _pos) { return *(strPtr_ + _pos); }
+        const_reference operator[] (size_type _pos) const { return *(strPtr_ + _pos); }
+        reference at (size_type _pos) { return *(strPtr_ + _pos); }
+        const_reference at (size_type _pos) const { return *(strPtr_ + _pos); }
+
+        reference back() { return *(strPtr_ + size_ - 1); }
+        const_reference back() const { return *(strPtr_ + size_ - 1); }
+        reference front() { return *(strPtr_); }
+        const_reference front() const { return *(strPtr_); }
 
         void push_back(value_type _value) { __append(1,_value); }
         iterator insert(size_type _pos, const basic_string& _str) { return __insert(_pos, _str.strPtr_, _str.size_); }
@@ -457,11 +457,11 @@ namespace LT {
         {
             return __insert(_pos, _str.strPtr_ + _subpos, _sublen);
         }
-        iterator insert(size_type _pos, const pointer _str)
+        iterator insert(size_type _pos, const_pointer _str)
         {
             return __insert(_pos, _str, char_traits::length(_str));
         }
-        iterator insert(size_type _pos, const pointer _ptr, size_type _n)
+        iterator insert(size_type _pos, const_pointer _ptr, size_type _n)
         {
             return __insert(_pos, _ptr, _n);
         }
@@ -473,13 +473,14 @@ namespace LT {
         {
             return __insert(_it, _n, _value);
         }
+
         iterator insert(iterator _it, value_type _value)
         {
             return __insert(_it, 1, _value);
         }
-        template <class InputIterator,
-                   typename LT::enable_if<LT::is_input_iterator<InputIterator>::value>::type>
-            iterator insert(iterator _it, InputIterator _itBeg, InputIterator _itEnd)
+        template <class InputIter,
+                   typename LT::enable_if<LT::is_input_iterator<InputIter>::value, int>::type = 0>
+            iterator insert(iterator _it, InputIter _itBeg, InputIter _itEnd)
         {
             return __insert(_it, _itBeg, LT::distance(_itBeg, _itEnd));
         }
@@ -488,17 +489,22 @@ namespace LT {
             __append(_str.strPtr_, _str.strPtr_.size_);
             return *this;
         }
+        basic_string& append(const basic_string& _str, size_type _subpos)
+        {
+            __append(_str.strPtr_ + _subpos, _str.size_);
+            return *this;
+        }
         basic_string& append(const basic_string& _str, size_type _subpos, size_type _sublen)
         {
             __append(_str.strPtr_ + _subpos, _sublen);
             return *this;
         }
-        basic_string& append(const pointer _ptr)
+        basic_string& append(const_pointer _ptr)
         {
             __append(_ptr, char_traits::length(_ptr));
             return *this;
         }
-        basic_string& append(const pointer _ptr, size_type _n)
+        basic_string& append(const_pointer _ptr, size_type _n)
         {
             __append(_ptr, _n);
             return *this;
@@ -509,7 +515,7 @@ namespace LT {
             return *this;
         }
         template <class InputIter,
-            typename LT::enable_if<LT::is_input_iterator<InputIter>::value>::type>
+            typename LT::enable_if<LT::is_input_iterator<InputIter>::value, int>::type = 0>
         basic_string& append(InputIter _itBeg, InputIter _itEnd)
         {
             __append(_itBeg, LT::distance(_itBeg, _itEnd));
@@ -521,7 +527,7 @@ namespace LT {
             __append(_str.strPtr_, _str.strPtr_.size_);
             return *this;
         }
-        basic_string& operator+= (const pointer _ptr)
+        basic_string& operator+= (const_pointer _ptr)
         {
             __append(_ptr, char_traits::length(_ptr));
             return *this;
@@ -563,8 +569,7 @@ namespace LT {
             }
             return _itBeg;
         }
-
-        
+    
         basic_string& replace(size_type _pos, size_type _len, const basic_string& _str)
         {
             return __replace_by_str(strPtr_ + _pos, _len, _str.strPtr_, _str.size_);
@@ -577,19 +582,19 @@ namespace LT {
         {
             return __replace_by_str(_pos, _len, _str.strPtr_ + _subPos, _sublen);
         }
-        basic_string& replace(size_type _pos, size_type _len, const pointer _ptr)
+        basic_string& replace(size_type _pos, size_type _len, const_pointer _ptr)
         {
             return __replace_by_str(_pos, _len, _ptr, char_traits::length(_ptr));
         }
-        basic_string& replace(iterator _startPos, iterator _endPos, const pointer _ptr)
+        basic_string& replace(iterator _startPos, iterator _endPos, const_pointer _ptr)
         {
             return __replace_by_str(_startPos, static_cast<size_type>(_endPos - _startPos), _ptr, char_traits::length(_ptr));
         }
-        basic_string& replace(size_type _pos, size_type _len, const pointer _ptr, size_type _n)
+        basic_string& replace(size_type _pos, size_type _len, const_pointer _ptr, size_type _n)
         {
             return __replace_by_str(strPtr_ + _pos, _len, _ptr, _n);
         }
-        basic_string& replace(iterator _startPos, iterator _endPos, const pointer _ptr, size_type _n)
+        basic_string& replace(iterator _startPos, iterator _endPos, const_pointer _ptr, size_type _n)
         {
             return __replace_by_str(strPtr_ + _startPos, static_cast<size_type>(_endPos - _startPos), _ptr, _n);
         }
@@ -601,8 +606,8 @@ namespace LT {
         {
             __replace_by_n(strPtr_ + _startPos, static_cast<size_type>(_endPos - _startPos), _value, _n);
         }
-        template <class InputIterator>
-        basic_string& replace(iterator _startPos, iterator _endPos, InputIterator _itBeg, InputIterator _itEnd)
+        template <class InputIter>
+        basic_string& replace(iterator _startPos, iterator _endPos, InputIter _itBeg, InputIter _itEnd)
         {
             __replace_by_iter(_startPos, static_cast<size_type>(_endPos - _startPos), _itBeg, _itEnd);
         }
@@ -615,6 +620,19 @@ namespace LT {
             __set_tail_zero(size_);
         }
         
+        //count
+        size_type count(value_type _ch, size_type _pos = 0)
+        {
+            size_type ret = 0;
+            for (size_type i = _pos; i < size_; ++i)
+            {
+                if (*(strPtr_ + _pos) == _ch)
+                {
+                    ++ret;
+                }
+            }
+            return ret;
+        }
         size_type find(const basic_string& _str, size_type _pos = 0) const
         {
             const size_type _strLen = _str.size_;
@@ -644,10 +662,9 @@ namespace LT {
                     }
                 }
             }
-            return npos;
-            
+            return npos;  
         }
-        size_type find(const pointer _str, size_type _pos = 0) const
+        size_type find(const_pointer _str, size_type _pos = 0) const
         {
             const size_type _strLen = char_traits::length(_str);
             if (_strLen == 0)
@@ -678,7 +695,7 @@ namespace LT {
             }
             return npos;
         }
-        size_type find(const pointer _ptr, size_type _pos, size_type _n) const
+        size_type find(const_pointer _ptr, size_type _pos, size_type _n) const
         {
             if (_n == 0)
             {
@@ -724,7 +741,7 @@ namespace LT {
         {
             return rfind(_str.strPtr_, npos, _str.size_);
         }
-        size_type rfind(const pointer _ptr, size_type _pos = npos) const
+        size_type rfind(const_pointer _ptr, size_type _pos = npos) const
         {
             size_type pos = max(size_ - 1, _pos);
             size_type strSize = char_traits::length(_ptr);
@@ -755,7 +772,7 @@ namespace LT {
 
             return npos;
         }
-        size_type rfind(const pointer _ptr, size_type _pos, size_type _n) const
+        size_type rfind(const_pointer _ptr, size_type _pos, size_type _n) const
         {
             if (_n == 0)
             {
@@ -803,11 +820,11 @@ namespace LT {
             return __find_first_of(strPtr_, _str.size_, _pos);
             
         }
-        size_type find_first_of(const pointer _ptr, size_type _pos = 0) const
+        size_type find_first_of(const_pointer _ptr, size_type _pos = 0) const
         {
             return __find_first_of(_ptr, char_traits::length(_ptr), _pos);
         }
-        size_type find_first_of(const pointer _ptr, size_type _pos, size_type _n) const
+        size_type find_first_of(const_pointer _ptr, size_type _pos, size_type _n) const
         {
             return __find_first_of(_ptr, _n, _pos);
         }
@@ -819,11 +836,11 @@ namespace LT {
         {
             return __find_last_of(_str.strPtr_, _str.size_, _pos);
         }
-        size_type find_last_of(const pointer _ptr, size_type _pos = npos) const
+        size_type find_last_of(const_pointer _ptr, size_type _pos = npos) const
         {
             return __find_last_of(_ptr, char_traits::length(_ptr), _pos);
         }
-        size_type find_last_of(const pointer _ptr, size_type _pos, size_type _n) const
+        size_type find_last_of(const_pointer _ptr, size_type _pos, size_type _n) const
         {
             return __find_last_of(_ptr, _n, _pos);
         }
@@ -842,11 +859,11 @@ namespace LT {
             return __find_first_not_of(strPtr_, _str.size_, _pos);
 
         }
-        size_type find_first_not_of(const pointer _ptr, size_type _pos = 0) const
+        size_type find_first_not_of(const_pointer _ptr, size_type _pos = 0) const
         {
             return __find_first_not_of(_ptr, char_traits::length(_ptr), _pos);
         }
-        size_type find_first_not_of(const pointer _ptr, size_type _pos, size_type _n) const
+        size_type find_first_not_of(const_pointer _ptr, size_type _pos, size_type _n) const
         {
             return __find_first_not_of(_ptr, _n, _pos);
         }
@@ -865,11 +882,11 @@ namespace LT {
         {
             return __find_last_not_of(_str.strPtr_, _str.size_, _pos);
         }
-        size_type find_last_not_of(const pointer _ptr, size_type _pos = npos) const
+        size_type find_last_not_of(const_pointer _ptr, size_type _pos = npos) const
         {
             return __find_last_not_of(_ptr, char_traits::length(_ptr), _pos);
         }
-        size_type find_last_not_of(const pointer _ptr, size_type _pos, size_type _n) const
+        size_type find_last_not_of(const_pointer _ptr, size_type _pos, size_type _n) const
         {
             return __find_last_not_of(_ptr, _n, _pos);
         }
@@ -904,20 +921,33 @@ namespace LT {
             return __compare_pointer(strPtr_, LT::min(size_ - _pos, _len),
                    _str.strPtr_ + _subpos, LT::min(_str.size_ - _subpos, _sublen));
         }
-        int compare(const pointer _ptr) const
+        int compare(const_pointer _ptr) const
         {
             return __compare_pointer(strPtr_, size_, _ptr, char_traits::length(_ptr));
         }
-        int compare(size_type _pos, size_type _len, const pointer _ptr) const
+        int compare(size_type _pos, size_type _len, const_pointer _ptr) const
         {
             return __compare_pointer(strPtr_, LT::min(size_ - _pos, _len), _ptr, char_traits::length(_ptr));
         }
-        int compare(size_type _pos, size_type _len, const pointer _ptr, size_type _n) const
+        int compare(size_type _pos, size_type _len, const_pointer _ptr, size_type _n) const
         {
             return __compare_pointer(strPtr_, LT::min(size_ - _pos, _len), _ptr, min(char_traits::length(_ptr), _n));
         }
         
+        //反转
 
+        void reverse()
+        {
+            if (size_ < 2) { return; }
+            pointer left = strPtr_;
+            pointer right = strPtr_ + size_ - 1;
+            while (left < right)
+            {
+                iter_swap(left, right);
+                ++left;
+                --right;
+            }
+        }
         //与c字符串兼容
         const_pointer c_str()const { return strPtr_; }
         const_pointer data()const { return strPtr_; }
@@ -929,7 +959,40 @@ namespace LT {
             return copySize;
         }
         
+        //操作符重载
+        // 重载 operator+= 
+        basic_string& operator+=(const basic_string& _rhs)
+        {
+            return append(str);
+        }
+        basic_string& operator+=(value_type _ch)
+        {
+            return append(1, _ch);
+        }
+        basic_string& operator+=(const_pointer _ptr)
+        {
+            return append(_ptr, _ptr + char_traits::length(_ptr));
+        }
 
+        // 重载 operator >> / operatror <<
+        friend std::istream& operator>> (std::istream& _inputStream, basic_string& _str)
+        {
+            value_type* buffer = new value_type[4096];
+            _inputStream >> buffer;
+            basic_string tmp(buffer);
+            str = std::move(tmp);
+            delete[]buf;
+            return _inputStream;
+        }
+
+        friend std::ostream& operator << (std::ostream& _outputStream, const basic_string& _str)
+        {
+            for (size_type i = 0; i < _str.size(); ++i)
+            {
+                _outputStream << *(_str.strPtr_ + i);
+            }
+            return _outputStream;
+        }
         /////********************************************************************************************************
         //**************************************************内部实现**************************************************
         ////**********************************************************************************************************
@@ -1343,8 +1406,6 @@ namespace LT {
             return 0;
         }
 	};
-
-    
 
 
     //-------------------------------------------外部重载-----------------------------------------------------
