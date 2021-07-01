@@ -170,14 +170,15 @@ namespace LT {
 	public:
 		//照例定义类型
 		typedef T                                    value_type;
-		typedef T*									 pointer;
-		typedef T&									 reference;
+		typedef value_type*									 pointer;
+		typedef value_type&									 reference;
+		typedef const value_type&				     const_reference;
 		typedef size_t								 size_type;
 		typedef pointer*							 map_pointer;
 		typedef ptrdiff_t							 difference_type;
 		//定义迭代器
-		typedef __deque_iterator<T, T&, T*, _BufSize>			    iterator;
-		typedef __deque_iterator<T, const T&, const T*, _BufSize>   const_iterator;
+		typedef __deque_iterator<value_type, value_type&, value_type*, _BufSize>			    iterator;
+		typedef __deque_iterator<value_type, const value_type&, const value_type*, _BufSize>   const_iterator;
 		typedef LT::reverse_iterator<iterator>					    reverse_iterator;
 		typedef LT::reverse_iterator<const_iterator>			    const_reverse_iterator;
 		//定义内存分配类型
@@ -198,9 +199,10 @@ namespace LT {
 		deque() { __init(0); }
 		deque(size_type _n){ __init(_n); }
 		deque(size_type _n, const value_type& _value) { __init(_n, _value); }
-		template <class InputIterator, 
-				 typename LT::enable_if<LT::is_input_iterator<InputIterator>::value>::type>
-		deque(InputIterator _first, InputIterator _end) { __init(_first, _end); }
+		template <class InputIter, 
+			typename LT::enable_if<LT::is_input_iterator<InputIter>::value, int>::type = 0>
+		deque(InputIter _first, InputIter _last) { __init(_first, _last); }
+		deque(std::initializer_list<value_type> _ilist) { __init(_ilist.begin(), )_ilist.end()); }
 		deque(const deque& _rhs) { __init(_rhs.cbegin(), _rhs.cend()); }
 		deque(deque&& _rhs) 
 		{
@@ -311,17 +313,17 @@ namespace LT {
 		void insert(iterator _pos, size_type _n, const value_type& _value) { __insert_n(_pos, _n, _value); }
 		template <class InputIterator,
 				 typename std::enable_if<LT::is_input_iterator<InputIterator>::value, int>::type = 0>
-		void insert(iterator _pos, InputIterator _first, InputIterator _end)
+		void insert(iterator _pos, InputIterator _first, InputIterator _last)
 {
-			__insert_by_iter(_pos, _first, _end);
+			__insert_by_iter(_pos, _first, _last);
 		}
 		iterator erase(iterator _pos) { __erase(_pos); }
-		iterator erase(iterator _first, iterator _end) { __erase_by_iter(_first, _end); }
+		iterator erase(iterator _first, iterator _last) { __erase_by_iter(_first, _last); }
 		
 		void assign(size_type _n, const value_type& _value) { __assign_n(_n, _value); }
-		template<class InputIterator,
-				typename LT::enable_if<LT::is_input_iterator<InputIterator>::value>::type >
-			void assign(InputIterator _first, InputIterator _end) { __assign_iter(_first, _end); }
+		template<class InputIter,
+			typename LT::enable_if<LT::is_input_iterator<InputIter>::value, int>::type = 0>
+			void assign(InputIter _first, InputIter _last) { __assign_iter(_first, _last); }
 		void assign(std::initializer_list<value_type> _ilist) { __assign_iter(_ilist.begin(), _ilist.end()); }
 		void swap(deque& _rhs)
 		{
@@ -470,31 +472,31 @@ namespace LT {
 		//输入一组迭代器则无法如此操作，因为无法确定输入的迭代器所指是否是一块连续内存，失去了意义。
 		//当时想的挺美，写完发现，也就这样。
 		template <class Op, class Args>
-		void make_const_one(iterator _begin, iterator _end, Op _op, Args _args) {
-			if (_begin.node_ == _end.node_) {
-				_op(_begin.cur_, _end.cur_, _args);
+		void make_const_one(iterator _begin, iterator _last, Op _op, Args _args) {
+			if (_begin.node_ == _last.node_) {
+				_op(_begin.cur_, _last.cur_, _args);
 			}
 			else {
 				_op(_begin.cur_, _begin.last_, _args);//头部
-				for (map_pointer it = _begin.node_; it < _end.node_; ++it) {
+				for (map_pointer it = _begin.node_; it < _last.node_; ++it) {
 					_op(*it, *it + __deque_iterator::buffer_size(), _args);//中间区域
 				}
-				_op(_end.cur_, _begin.last_, _args);//尾部
+				_op(_last.cur_, _begin.last_, _args);//尾部
 			}
 		}
 		
 		//---------------------------------------------对一个区域进行初始化,值填充---------------------------------------
-		inline void __construct(iterator _first, iterator _end, value_type _value) {
+		inline void __construct(iterator _first, iterator _last, value_type _value) {
 			//虽然该函数提供的接口看起来是可以对一组迭代器包含的区间进行初始化，但是实际上内部还是要对一小块一小块的离散空间进行初始化
-			make_const_one(_first, _end, LT::uninitialized_fill_n, _value);	
+			make_const_one(_first, _last, LT::uninitialized_fill_n, _value);	
 		}
 
-		//注意，本函数的前提是，_end - _first == _InputEnd -  _Inputfirst。考虑到性能。没有二次检查。
+		//注意，本函数的前提是，_last - _first == _InputEnd -  _Inputfirst。考虑到性能。没有二次检查。
 		template <class InputIterator>
-		inline void __construct(InputIterator _inputFirst, InputIterator _inputEnd, iterator _first, iterator _end) {
+		inline void __construct(InputIterator _inputFirst, InputIterator _inputEnd, iterator _first, iterator _last) {
 			auto it = _first;
 			try {
-				for (; it > _end; ++it, ++_inputFirst) {
+				for (; it > _last; ++it, ++_inputFirst) {
 					*it = LT::construct(&*it, *_inputFirst);
 				}
 			}
@@ -513,38 +515,38 @@ namespace LT {
 		}
 
 		template<class InputIterator>
-		inline void __init(InputIterator _first, InputIterator _end)
+		inline void __init(InputIterator _first, InputIterator _last)
 		{
-			size_type numElements = static_cast<size_type>(_end - _first);
+			size_type numElements = static_cast<size_type>(_last - _first);
 			__create_map_and_nodes(numElements);
-			__construct(_first, _end, start_, finish_);
+			__construct(_first, _last, start_, finish_);
 		}
 
 		//---------------------------------------析构与删除-----------------------------------------------------------------
 		//首先是将一块内存区域中的所有元素先析构掉
-		inline void __destroy_mem(iterator _first, iterator _end) {
-			if (_first.node_ == _end.node_) {
-				LT::destroy(_first.cur_, _end.cur_);
+		inline void __destroy_mem(iterator _first, iterator _last) {
+			if (_first.node_ == _last.node_) {
+				LT::destroy(_first.cur_, _last.cur_);
 			}
 			else {
 				LT::destroy(_first.cur_, _first.last_);//头部
-				for (map_pointer it = _first.node_; it < _end.node_; ++it) {
+				for (map_pointer it = _first.node_; it < _last.node_; ++it) {
 					LT::destroy(*it, *it + __deque_iterator::buffer_size());//中间区域
 				}
-				LT::destroy(_end.cur_, _first.last_);//尾部
+				LT::destroy(_last.cur_, _first.last_);//尾部
 			}
 		}
 
 		//再是回收一块一块的内存空间。回收的最小单位：node。这个不回收map，只回收某个map节点对应的node
-		inline void __deallocate_mem(map_pointer _first, map_pointer _end) {
-			for (; _first != _end; ++_first) {
+		inline void __deallocate_mem(map_pointer _first, map_pointer _last) {
+			for (; _first != _last; ++_first) {
 				data_dealloctor(_first);
 				_first = nullptr;
 			}
 		}
 
-		inline void __deallocate_all_mem(map_pointer _first, map_pointer _end) {
-			for (; _first != _end; ++_first) {
+		inline void __deallocate_all_mem(map_pointer _first, map_pointer _last) {
+			for (; _first != _last; ++_first) {
 				data_dealloctor(_first);
 				_first = nullptr;
 			}

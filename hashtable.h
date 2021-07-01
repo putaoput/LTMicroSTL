@@ -67,7 +67,7 @@ namespace LT {
 		template <class Ty>
 		static const key_type& get_key(const Ty& _value)
 		{
-			return _value.first;
+			return _value._first;
 		}
 
 		template <class Ty>
@@ -357,9 +357,9 @@ namespace LT {
 
 		//*******************************************获取质数*****************************************************
 		inline size_t hashtable_next_prime(size_t _n) {
-			const size_t* first = hashtable_prime_list;
+			const size_t* _first = hashtable_prime_list;
 			const size_t* last = hashtable_prime_list + PRIME_NUM;
-			const size_t* pos = LT::lower_bound(first, last, _n);
+			const size_t* pos = LT::lower_bound(_first, last, _n);
 			return pos == last ? *(last - 1) : *pos;
 		}
 
@@ -594,7 +594,7 @@ namespace LT {
 
 			iterator insert_unique_use_hint(const_iterator /*_hint*/, const value_type& _value)
 			{
-				return insert_unique(_value).first;
+				return insert_unique(_value)._first;
 			}
 			iterator insert_unique_use_hint(const_iterator /*_hint*/, value_type&& _value)
 			{
@@ -602,15 +602,15 @@ namespace LT {
 			}
 
 			template <class InputIter>
-			void insert_multi(InputIter first, InputIter last)
+			void insert_multi(InputIter _first, InputIter last)
 			{
-				copy_insert_multi(first, last, iterator_category(first));
+				copy_insert_multi(_first, last, iterator_category(_first));
 			}
 
 			template <class InputIter>
-			void insert_unique(InputIter first, InputIter last)
+			void insert_unique(InputIter _first, InputIter last)
 			{
-				copy_insert_unique(first, last, iterator_category(first));
+				copy_insert_unique(_first, last, iterator_category(_first));
 			}
 
 
@@ -1074,17 +1074,17 @@ namespace LT {
 			//实际上，下面两个erase，特别是第一个equal是可以不调用equal_range_...进行加速的，特别是第二个。
 			inline size_type _erase_multi(const key_type& _key) {
 				pair<const_iterator, const_iterator> itPair = equal_range_multi(_key);
-				size_type ret = LT::advance(itPair.first,itPair.second);
-				if (itPair.first != itPair.second) {
-					erase(itPair.first, itPair.second);
+				size_type ret = LT::advance(itPair._first,itPair.second);
+				if (itPair._first != itPair.second) {
+					erase(itPair._first, itPair.second);
 				}
 				return ret;
 			}
 
 			inline size_type _erase_unique(const key_type& _key) {
 				pair<const_iterator, const_iterator> itPair = equal_range_unique(_key);
-				if (itPair.first != itPair.second) {
-					erase(itPair.first, itPair.second);
+				if (itPair._first != itPair.second) {
+					erase(itPair._first, itPair.second);
 					return 0;
 				}
 				return 0;

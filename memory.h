@@ -22,11 +22,6 @@ namespace LT {
 		return &_value;
 	}
 
-	//前置声明
-	template<class T, class Deleter = DefaultDeleter()>
-	class weak_ptr;
-
-
 	class DefaultDeleter {
 	public:
 		template<class T>
@@ -44,8 +39,11 @@ namespace LT {
 			_ptr->~T();
 		}
 	};
+	//前置声明
+	template<class T, class Deleter = DefaultDeleter()>
+	class weak_ptr;
+
 	//------------------------------------------------shared_ptr-------------------------------------------------------
-	
 	template<class T, class Deleter = DefaultDeleter>
 	class shared_ptr_impl {
 	public:

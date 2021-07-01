@@ -25,8 +25,7 @@ namespace LT
 				LT::vector<int> v1;
 				LT::vector<int> v2(10);
 				LT::vector<int> v3(10, 1);
-			    /*LT::vector<int> v4(a, a + 5);*/
-				/*
+			    LT::vector<int> v4(a, a + 5);	
 				LT::vector<int> v5(v2);
 				LT::vector<int> v6(std::move(v2));
 				LT::vector<int> v7{ 1,2,3,4,5,6,7,8,9 };
@@ -34,6 +33,8 @@ namespace LT
 				v8 = v3;
 				v9 = std::move(v3);
 				v10 = { 1,2,3,4,5,6,7,8,9 };
+				std::vector<int> arr;
+				arr.erase(arr.begin(), arr.end());
 				
 				FUN_AFTER(v1, v1.assign(8, 8));
 				FUN_AFTER(v1, v1.assign(a, a + 5));
@@ -93,21 +94,22 @@ namespace LT
 				FUN_VALUE(v1.size());
 				FUN_VALUE(v1.capacity());
 				PASSED;
-//#if PERFORMANCE_TEST_ON
-//				std::cout << "[--------------------- Performance Testing ---------------------]\n";
-//				std::cout << "|---------------------|-------------|-------------|-------------|\n";
-//				std::cout << "|      push_back      |";
-//#if LARGER_TEST_DATA_ON
-//				CON_TEST_P1(vector<int>, push_back, rand(), LEN1 _LL, LEN2 _LL, LEN3 _LL);
-//#else
-//				CON_TEST_P1(vector<int>, push_back, rand(), LEN1 _L, LEN2 _L, LEN3 _L);
-//#endif
-//				std::cout << "\n";
-//				std::cout << "|---------------------|-------------|-------------|-------------|\n";
-//				PASSED;
-//#endif
-*/
-//				std::cout << "[----------------- End container test : vector -----------------]\n";
+				
+#if PERFORMANCE_TEST_ON
+				std::cout << "[--------------------- Performance Testing ---------------------]\n";
+				std::cout << "|---------------------|-------------|-------------|-------------|\n";
+				std::cout << "|      push_back      |";
+#if LARGER_TEST_DATA_ON
+				CON_TEST_P1(vector<int>, push_back, rand(), LEN1 _LL, LEN2 _LL, LEN3 _LL);
+#else
+				CON_TEST_P1(vector<int>, push_back, rand(), LEN1 _L, LEN2 _L, LEN3 _L);
+#endif
+				std::cout << "\n";
+				std::cout << "|---------------------|-------------|-------------|-------------|\n";
+				PASSED;
+#endif
+
+				std::cout << "[----------------- End container test : vector -----------------]\n";
 			}
 
 		} // namespace vector_test

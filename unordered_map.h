@@ -49,7 +49,7 @@ namespace LT {
 				:hashtable_(_n, _hash, _equal, _alloc) {}
 			
 			template <class InputIterator,
-				typename LT::enable_if<is_input_iterator<InputIterator>::value>::type>
+				typename LT::enable_if<is_input_iterator<InputIterator>::value, int>::type = 0>
 			unordered_map(InputIterator _itBeg, InputIterator _itEnd,
 				const size_type _n = 100,
 				const HashFunc& _hash = HashFunc(),
@@ -99,8 +99,8 @@ namespace LT {
 			{
 				hashtable_.clear();
 				hashtable_.reserve(_ilist.size());
-				for (auto first = _ilist.begin(), last = _ilist.end(); first != last; ++first)
-					hashtable_.insert_unique_noresize(*first);
+				for (auto _first = _ilist.begin(), last = _ilist.end(); _first != last; ++_first)
+					hashtable_.insert_unique_noresize(*_first);
 				return *this;
 			}
 			
@@ -195,9 +195,9 @@ namespace LT {
 			}
 
 			template <class InputIterator>
-			void insert(InputIterator first, InputIterator last)
+			void insert(InputIterator _first, InputIterator last)
 			{
-				hashtable_.insert_unique(first, last);
+				hashtable_.insert_unique(_first, last);
 			}
 
 			// erase 
@@ -205,9 +205,9 @@ namespace LT {
 			{
 				hashtable_.erase(it);
 			}
-			void erase(iterator first, iterator last)
+			void erase(iterator _first, iterator last)
 			{
-				hashtable_.erase(first, last);
+				hashtable_.erase(_first, last);
 			}
 
 			size_type erase(const key_type& _key)
@@ -310,9 +310,9 @@ namespace LT {
 
 
 	template <class Value,
-		class HashFunc = LT::hash<Value>,
-		class EqualKey = LT::equal_to<Value>,
-		class Alloc = allocator<Value>>
+			class HashFunc = LT::hash<Value>,
+			class EqualKey = LT::equal_to<Value>,
+			class Alloc = allocator<Value>>
 		class unordered_multimap
 	{
 
@@ -351,7 +351,8 @@ namespace LT {
 		explicit unordered_multimap(size_type _n, const HashFunc& _hash = HashFunc(), const EqualKey& _equal = EqualKey(), const Alloc& _alloc = Alloc)
 			:hashtable_(_n, _hash, _equal, _alloc) {}
 		
-		template <class InputIterator>
+		template <class InputIterator,
+				typename LT::enable_if<LT::is_input_iterator<InputIterator>::value, int>::type = 0>
 		unordered_multimap(InputIterator _itBegin, InputIterator _itEnd,
 			const size_type _n = 100,
 			const HashFunc& _hash = HashFunc(),
@@ -496,9 +497,9 @@ namespace LT {
 		}
 
 		template <class InputIterator>
-		void insert(InputIterator first, InputIterator last)
+		void insert(InputIterator _first, InputIterator last)
 		{
-			hashtable_.insert_multi(first, last);
+			hashtable_.insert_multi(_first, last);
 		}
 
 		// erase 
@@ -506,9 +507,9 @@ namespace LT {
 		{
 			hashtable_.erase(it);
 		}
-		void erase(iterator first, iterator last)
+		void erase(iterator _first, iterator last)
 		{
-			hashtable_.erase(first, last);
+			hashtable_.erase(_first, last);
 		}
 		size_type erase(const key_type& _key)
 		{

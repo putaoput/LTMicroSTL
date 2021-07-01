@@ -129,7 +129,37 @@
     <ClInclude Include="test\test.h">
       <Filter>头文件\test</Filter>
     </ClInclude>
-    <ClInclude Include="testVector.h">
+    <ClInclude Include="test\testVector.h">
+      <Filter>头文件\test</Filter>
+    </ClInclude>
+    <ClInclude Include="numeric.h">
+      <Filter>头文件\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="stl_heap.h">
+      <Filter>头文件\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="set.h">
+      <Filter>头文件\关联式容器</Filter>
+    </ClInclude>
+    <ClInclude Include="test\testDeque.h">
+      <Filter>头文件\test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\testList.h">
+      <Filter>头文件\test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\testQueue.h">
+      <Filter>头文件\test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\testStack.h">
+      <Filter>头文件\test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\testString.h">
+      <Filter>头文件\test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\testUnordered_map.h">
+      <Filter>头文件\test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\testUnordered_set.h">
       <Filter>头文件\test</Filter>
     </ClInclude>
   </ItemGroup>

@@ -64,15 +64,15 @@ namespace LT {
 
 	//-------------------------------------------uninitialized_copy()的实现---------------------------------------------
 	template <typename InputIterator, class ForwardIterator>//基本数据类型
-	inline ForwardIterator __uninitialized_copy_aux(InputIterator _first, InputIterator _end, ForwardIterator _result, true_type) {
-		return LT::copy(_first, _end, _result);//交由高阶函数处理
+	inline ForwardIterator __uninitialized_copy_aux(InputIterator _first, InputIterator _last, ForwardIterator _result, true_type) {
+		return LT::copy(_first, _last, _result);//交由高阶函数处理
 	}
 
 	template <typename InputIterator, class ForwardIterator>//非基本数据类型
-	inline ForwardIterator __uninitialized_copy_aux(InputIterator _first, InputIterator _end, ForwardIterator _result, false_type) {
+	inline ForwardIterator __uninitialized_copy_aux(InputIterator _first, InputIterator _last, ForwardIterator _result, false_type) {
 		InputIterator copyStart = _first;
 		ForwardIterator cur = _result;
-		int n = _end - _first;
+		int n = _last - _first;
 		try {
 			for (; n > 0; --n, ++cur) {
 				construct(&*cur, *copyStart++);
@@ -90,44 +90,44 @@ namespace LT {
 
 	//要对char* 和 wchar_t*提供更为高效的特化版本
 
-	inline char* uninitialized_copy(const char* _first, const char* _end, char* _result) {
-		std::memmove(_result, _first, _end - _first);
-		return _result + (_end - _first);
+	inline char* uninitialized_copy(const char* _first, const char* _last, char* _result) {
+		std::memmove(_result, _first, _last - _first);
+		return _result + (_last - _first);
 	}
 
-	inline wchar_t* uninitialized_copy(const wchar_t* _first, const wchar_t* _end, wchar_t* _result) {
-		memmove(_result, _first, _end - _first);
-		return _result + (_end - _first);
+	inline wchar_t* uninitialized_copy(const wchar_t* _first, const wchar_t* _last, wchar_t* _result) {
+		memmove(_result, _first, _last - _first);
+		return _result + (_last - _first);
 	}
 
 	template <typename InputIterator, class ForwardIterator, class T>//分辨是否是基本数据类型
-	inline ForwardIterator __uninitialized_copy(InputIterator _first, InputIterator _end, ForwardIterator _result, T*) {
+	inline ForwardIterator __uninitialized_copy(InputIterator _first, InputIterator _last, ForwardIterator _result, T*) {
 		typedef typename _type_traits<T>::is_POD_type is_POD;
-		return __uninitialized_copy_aux(_first, _end, _result, is_POD());
+		return __uninitialized_copy_aux(_first, _last, _result, is_POD());
 	}
 
 	
 
 	//首先是提供一组拷贝函数，负责把一个区域的内容拷贝到另一个区域,返回拷贝结束的位置的迭代器
 	template <typename InputIterator, class ForwardIterator>//基本数据类型
-	inline ForwardIterator uninitialized_copy(InputIterator _first, InputIterator _end, ForwardIterator _result) 
+	inline ForwardIterator uninitialized_copy(InputIterator _first, InputIterator _last, ForwardIterator _result) 
 	{
-		return __uninitialized_copy(_first, _end, _result, value_type(_result));//萃取value_type
+		return __uninitialized_copy(_first, _last, _result, value_type(_result));//萃取value_type
 	}
 
 
 	//-------------------------------------------uninitialized_fill()的实现---------------------------------------------
 
 	template <typename ForwardIterator, class T>
-	inline void __uninitialized_fill_aux(ForwardIterator _first, ForwardIterator _end, const T& _value, true_type) {
-		fill(_first, _end, _value);//调用stl算法fill().
+	inline void __uninitialized_fill_aux(ForwardIterator _first, ForwardIterator _last, const T& _value, true_type) {
+		fill(_first, _last, _value);//调用stl算法fill().
 	}
 
 	template <typename ForwardIterator, class T>
-	inline void __uninitialized_fill_aux(ForwardIterator _first, ForwardIterator _end, const T& _value, false_type) {
+	inline void __uninitialized_fill_aux(ForwardIterator _first, ForwardIterator _last, const T& _value, false_type) {
 		ForwardIterator cur = _first;
 		try {
-			for (; cur != _end; ++cur) {
+			for (; cur != _last; ++cur) {
 				construct(&*cur, _value);
 			}
 			return cur;
@@ -142,29 +142,29 @@ namespace LT {
 	}
 
 	template <typename ForwardIterator, class T, class T1>
-	inline void __uninitialized_fill(ForwardIterator _first, ForwardIterator _end, const T& _value, T1*) {
+	inline void __uninitialized_fill(ForwardIterator _first, ForwardIterator _last, const T& _value, T1*) {
 		typedef typename _type_traits<T>::is_POD_type is_POD;
-		__uninitialized_fill_aux(_first, _end, _value, is_POD());
+		__uninitialized_fill_aux(_first, _last, _value, is_POD());
 	}
 
 	template <typename ForwardIterator, class T>
-	void uninitialized_fill(ForwardIterator _first, ForwardIterator _end, const T& _value) {
-		__uninitialized_fill(_first, _end, _value, value_type(_first));
+	void uninitialized_fill(ForwardIterator _first, ForwardIterator _last, const T& _value) {
+		__uninitialized_fill(_first, _last, _value, value_type(_first));
 	}
 	//------------------------------------------------------uninitialized_move----------------------------------------------------
 	template <typename InputIterator, class ForwardIterator>
-	ForwardIterator __uninitialized_move(InputIterator _first, InputIterator _end, ForwardIterator _result, std::true_type)
+	ForwardIterator __uninitialized_move(InputIterator _first, InputIterator _last, ForwardIterator _result, std::true_type)
 	{
-		return LT::move(_first, _end, _result);
+		return LT::move(_first, _last, _result);
 	}
 
 	template <typename InputIterator, class ForwardIterator>
-	ForwardIterator __uninitialized_move(InputIterator _first, InputIterator _end, ForwardIterator _result, std::false_type)
+	ForwardIterator __uninitialized_move(InputIterator _first, InputIterator _last, ForwardIterator _result, std::false_type)
 	{
 		ForwardIterator cur = _result;
 		try
 		{
-			size_t n = LT::distance(_first, _end);
+			size_t n = LT::distance(_first, _last);
 			for (; n; ++_first, ++cur, --n)
 			{
 				LT::construct(LT::address_of(*cur), LT::move(*_first));
@@ -178,9 +178,9 @@ namespace LT {
 	}
 
 	template <typename InputIterator, class ForwardIterator>
-	ForwardIterator uninitialized_move(InputIterator _first, InputIterator _end, ForwardIterator _result)
+	ForwardIterator uninitialized_move(InputIterator _first, InputIterator _last, ForwardIterator _result)
 	{
-		return __uninitialized_move(_first, _end, _result,
+		return __uninitialized_move(_first, _last, _result,
 			std::is_trivially_move_assignable<typename iterator_traits<InputIterator>::value_type>{});
 	}
 }
