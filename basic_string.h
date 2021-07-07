@@ -931,7 +931,7 @@ namespace LT {
         }
         int compare(size_type _pos, size_type _len, const_pointer _ptr, size_type _n) const
         {
-            return __compare_pointer(strPtr_, LT::min(size_ - _pos, _len), _ptr, min(char_traits::length(_ptr), _n));
+            return __compare_pointer(static_cast<const_pointer>(strPtr_), LT::min(size_ - _pos, _len), _ptr, min(char_traits::length(_ptr), _n));
         }
         
         //反转
@@ -963,7 +963,7 @@ namespace LT {
         // 重载 operator+= 
         basic_string& operator+=(const basic_string& _rhs)
         {
-            return append(str);
+            return append(_rhs);
         }
         basic_string& operator+=(value_type _ch)
         {
@@ -980,8 +980,8 @@ namespace LT {
             value_type* buffer = new value_type[4096];
             _inputStream >> buffer;
             basic_string tmp(buffer);
-            str = std::move(tmp);
-            delete[]buf;
+            _str = std::move(tmp);
+            delete[]buffer;
             return _inputStream;
         }
 
@@ -1329,7 +1329,7 @@ namespace LT {
         }
 
         //find_first_of
-        inline size_type __find_first_of(const_pointer _str, size_type _n, size_type _pos)
+        inline size_type __find_first_of(const_pointer _str, size_type _n, size_type _pos) const
         {
             for (int i = _pos; i < size_; ++i)
             {
@@ -1345,7 +1345,7 @@ namespace LT {
         }
 
         //find_last_of
-        inline size_type __find_last_of(const_pointer _str, size_type _n, size_type _pos)
+        inline size_type __find_last_of(const_pointer _str, size_type _n, size_type _pos) const
         {
             for (int i = _pos; i > size_; --i)
             {
@@ -1361,7 +1361,7 @@ namespace LT {
         }
 
         //find_first_not_of
-        inline size_type __find_first_not_of(const_pointer _str, size_type _n, size_type _pos)
+        inline size_type __find_first_not_of(const_pointer _str, size_type _n, size_type _pos) const
         {
             for (int i = _pos; i < size_; ++i)
             {
@@ -1378,7 +1378,7 @@ namespace LT {
         }
 
         //find_first_not_of
-        inline size_type __find_last_not_of(const_pointer _str, size_type _n, size_type _pos)
+        inline size_type __find_last_not_of(const_pointer _str, size_type _n, size_type _pos)const
         {
             for (int i = _pos; i > size_; --i)
             {
@@ -1396,7 +1396,18 @@ namespace LT {
 
         //compare的实现:如果相等则输出为0,小于返回-1，大于返回1。
         inline int __compare_pointer(const_pointer _str1, size_type _n1,
-            const_pointer _str2, size_type _n2)
+            const_pointer _str2, size_type _n2) const
+        {
+            size_type len = min(_n1, _n2);
+            int ret = char_traits::compare(_str1, _str2, len);
+            if (ret != 0) { return ret; }
+            if (_n1 < _n2) { return -1; }
+            if (_n1 > _n2) { return 1; }
+            return 0;
+        }
+
+        inline int __compare_pointer(pointer _str1, size_type _n1,
+            const_pointer _str2, size_type _n2) const
         {
             size_type len = min(_n1, _n2);
             int ret = char_traits::compare(_str1, _str2, len);

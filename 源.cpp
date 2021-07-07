@@ -1,5 +1,7 @@
-#include "test/testVector.h"
-#include "test/testList.h"
+//#include "test/testVector.h"
+//#include "test/testList.h"
+#include "test/testDeque.h"
+//#include "test/testString.h"
 #include "stl_algo.h"
 #include <string>
 #include "iterator.h"
@@ -23,12 +25,8 @@ int main()
 {
 	//LT::test::vector_test::vector_test();
 	//LT::test::list_test::list_test();
-	//int* a = 0;
-	LT::vector<int> arr  = { 4,2,7,9,1,323,612,241,6,4,75,57 };
-	LT::sort(arr.begin(), arr.end());
-	const char* str = "abcde";
-	c* aaa = new c;
-	aaa->pp = 0;
+	LT::test::deque_test::deque_test();
+	//LT::test::string_test::string_test();
 
 	return 0;
 }

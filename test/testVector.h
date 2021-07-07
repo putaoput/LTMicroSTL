@@ -6,8 +6,8 @@
 
 #include <vector>
 
-#include "vector.h"
-#include "test/test.h"
+#include "../vector.h"
+#include "test.h"
 
 namespace LT
 {

@@ -17,8 +17,16 @@ namespace LT
 		{
 
 			// Ò»¸ö¸¨Öú²âÊÔº¯Êı
-			bool is_odd(int x) { return x & 1; }
+			template<class Input>
+			void aaaa(Input _first, Input _last)
+			{
 
+			}
+			bool is_odd(int x) { return x & 1; }
+			template<class InputIter>
+			inline void __assign_iter(InputIter _first, InputIter _last) {
+				aaaa(_first, _last);
+			}
 			void list_test()
 			{
 				std::cout << "[===============================================================]" << std::endl;
@@ -26,16 +34,17 @@ namespace LT
 				std::cout << "[-------------------------- API test ---------------------------]" << std::endl;
 				int a[] = { 1,2,3,4,5 };
 				LT::list<int> l1;
-				//LT::list<int> l2(5);
+				LT::list<int> l2(5);
+				__assign_iter(l2.begin(), l2.end());
 				LT::list<int> l3(5, 1);
-				/*LT::list<int> l4(a, a + 5);
+				LT::list<int> l4(a, a + 5);
 				LT::list<int> l5(l2);
 				LT::list<int> l6(std::move(l2));
 				LT::list<int> l7{ 1,2,3,4,5,6,7,8,9 };
 				LT::list<int> l8;
 				l8 = l3;
-				LT::list<int> l9;
-				l9 = std::move(l3);
+				//LT::list<int> l9;
+				/*l9 = std::move(l3);
 				LT::list<int> l10;
 				l10 = { 1, 2, 2, 3, 5, 6, 7, 8, 9 };*/
 

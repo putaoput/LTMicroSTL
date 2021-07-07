@@ -161,13 +161,21 @@ namespace LT {
 				typename std::enable_if<LT::is_input_iterator<InputIter>::value, int>::type = 0>
 		list(InputIter _itBeign, InputIter _itEnd) { __init_iter(_itBeign, _itEnd); }
 		list(std::initializer_list<T> _ilist) { __init_iter(_ilist.begin(), _ilist.end()); }
-		list(const list& _rhs) { __init_iter(_rhs.begin(), _rhs.end()); }
+		list(const list& _rhs)
+		{
+			//__init_iter(_rhs.begin(), _rhs.begin());
+		}
 		list(list&& _rhs) :nodePtr_(_rhs.nodePtr_) { _rhs.nodePtr_ = nullptr; }
-		list& operator=(const list& _rhs) { assign(_rhs.begin(), _rhs.end()); return *this; }
+		list& operator=(const list& _rhs) {
+			if (*this != _rhs)
+			{
+				//__assign_iter(begin(), end());
+			}
+			return *this;
+		}
 		list& operator=(list&& _rhs) 
 		{ 
-			clear();
-			splice(end(), _rhs);
+			swap(_rhs);
 			return *this; 
 		}
 		list& operator=(std::initializer_list<T> _ilist)
@@ -176,7 +184,15 @@ namespace LT {
 			swap(tmp); 
 			return *this;
 		}
-		~list() {	__uninit();}
+		~list() 
+		{	
+			//移动语义的存在使得nodePtr可能为空指针
+			if (nodePtr_)
+			{
+				__uninit();
+			}
+			
+		}
 
 		//------------------------------------------------------迭代器----------------------------------------------------------------
 		iterator begin() { return static_cast<iterator>(nodePtr_->next); }//因为迭代器内部只有一个list_node_pointer,所以可以直接进行静态类型转换
@@ -236,8 +252,8 @@ namespace LT {
 		void assign(size_type _n,const value_type& _value) { __assignN(_n, _value); }
 		template<class InputIter,
 			typename std::enable_if<LT::is_input_iterator<InputIter>::value, int>::type = 0>
-		void assign(InputIter _itBegin, InputIter _itEnd) { __assignIt(_itBegin, _itEnd); }
-		void assign(std::initializer_list<T> _ilist) { __assignIt( _ilist.begin(), _ilist.end()); }
+		void assign(InputIter _itBegin, InputIter _itEnd) { __assign_iter(_itBegin, _itEnd); }
+		void assign(std::initializer_list<T> _ilist) { __assign_iter( _ilist.begin(), _ilist.end()); }
 
 		iterator insert(iterator _pos, const value_type& _value)
 		{
@@ -533,8 +549,8 @@ namespace LT {
 			cur->next = nodePtr_;
 		}
 
-		template<class InputIterator>
-		inline void __init_iter(InputIterator _itBeg, InputIterator _itEnd) {
+		template<class InputIter>
+		inline void __init_iter(InputIter _itBeg, InputIter _itEnd) {
 			__set_tail();
 			size_type n = LT::distance(_itBeg, _itEnd);
 			try {
@@ -553,7 +569,7 @@ namespace LT {
 		//析构的实现
 		inline void __uninit() {
 			list_node_pointer cur = nodePtr_;
-			++cur;
+			cur = cur->next;
 			std::cout << size() << std::endl;
 			while (cur != nodePtr_) {
 				list_node_pointer tmp = cur;
@@ -582,9 +598,10 @@ namespace LT {
 			}	
 		}
 
-		template<class InputIter>
-		inline void __assignIt(InputIter _first, InputIter _last) {
-			size_type n = static_cast<size_type>(LT::distance(_first, _last));
+		
+		template<class InputIterator>
+		inline void __assign_iter(InputIterator _first, InputIterator _last) {
+			/*size_type n = static_cast<size_type>(LT::distance(_first, _last));
 			iterator cur = begin();
 			while (cur != end() && n) {
 				*_first = *cur;
@@ -597,7 +614,7 @@ namespace LT {
 			else if (n) {
 				insert(end(),n,*_first);
 				++_first;
-			}
+			}*/
 		}
 
 		//resize的实现
@@ -621,15 +638,15 @@ namespace LT {
 		void __transfer_(iterator _pos, iterator _first, iterator _last) {//将[first,end)之间的元素移到_pos之前。可以是同一个list内的两段区间
 			if (_pos != _last) {
 				list_node_pointer preNode = _pos.nodePtr_->pre;
-				list_node_pointer tailNode = _last->pre;
+				list_node_pointer tailNode = _last.nodePtr_->pre;
 
 				_first.nodePtr_->pre->next = _last.nodePtr_;
 				_last.nodePtr_->pre = _first.nodePtr_->pre;
 
 				_first.nodePtr_->pre = preNode;
-				preNode->next = _first;
-				tailNode->next = _pos;
-				_pos->pre = tailNode;
+				preNode->next = _first.nodePtr_;
+				tailNode->next = _pos.nodePtr_;
+				_pos.nodePtr_->pre = tailNode;
 			}
 		}
 

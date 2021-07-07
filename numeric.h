@@ -45,10 +45,10 @@ namespace LT {
 		}
 
 		*_result = *_first;  // 记录第一个元素
-		iterator_traits<InputIter>::value_type value = *_first;
+		typename iterator_traits<InputIter>::value_type value = *_first;
 		while (++_first != _last)
 		{
-			iterator_traits<InputIter>::value_type tmp = *_first;
+			typename iterator_traits<InputIter>::value_type tmp = *_first;
 			*++_result = tmp - value;
 			value = tmp;
 		}
@@ -64,10 +64,10 @@ namespace LT {
 		}
 
 		*_result = *_first;  // 记录第一个元素
-		iterator_traits<InputIter>::value_type value = *_first;
+		typename iterator_traits<InputIter>::value_type value = *_first;
 		while (++_first != _last)
 		{
-			iterator_traits<InputIter>::value_type tmp = *_first;
+			typename iterator_traits<InputIter>::value_type tmp = *_first;
 			*++_result = _binaryOp(tmp, value);
 			value = tmp;
 		}
@@ -82,7 +82,7 @@ namespace LT {
 	template <class InputIter1, class InputIter2, class T>
 	T inner_product(InputIter1 _first1, InputIter1 _last1, InputIter2 _first2, T _initValue)
 	{
-		for (; _first1 != _last2; ++_first1, ++_first2)
+		for (; _first1 != _last1; ++_first1, ++_first2)
 		{
 			_initValue = _initValue + (*_first1 * *_first2);
 		}

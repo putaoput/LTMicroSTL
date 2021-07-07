@@ -10,6 +10,7 @@
 //要求具有回滚功能，即commit or rollback。要么全部构造，要么一个也不构造
 //对于POD类型采用最高效得方式，对于非POD类型采用最保险的方式
 #include "construct.h"
+#include "memory.h"
 #include "iterator.h"
 #include "type_traits.h"
 #include "algobase.h" //这里有更高阶的内存分配函数，用来管理基本数据类型的内存
