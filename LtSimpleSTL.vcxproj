@@ -169,6 +169,7 @@
     <ClInclude Include="test\testQueue.h" />
     <ClInclude Include="test\testStack.h" />
     <ClInclude Include="test\testString.h" />
+    <ClInclude Include="test\testThreadSafeVector.h" />
     <ClInclude Include="test\testUnordered_map.h" />
     <ClInclude Include="test\testUnordered_set.h" />
     <ClInclude Include="test\testVector.h" />

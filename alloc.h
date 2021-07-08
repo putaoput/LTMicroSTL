@@ -1,6 +1,7 @@
 //@Author: Lin Tao
 //@Email: putaopu@qq.com
 
+//内存池：未完成，未使用
 #pragma once
 //这个头文件负责分配内存，是默认的内存配置器。管理内存池，主要用于维护16个自由链表。对于大内存，转而调用第一级配置器
 #include <cstdlib> //分配内存的库函数malloc和free在这里

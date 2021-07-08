@@ -48,27 +48,26 @@ namespace LT {
 ////**********************************************************************************************************
     public:
         //写一些构造函数
-         vector()
-                :start_(0), finish_(0), endOfStorage_(0)
+         thread_safe_vector()
+             :start_(0)
         {
             //对每个元素进行预初始化
-            __init_n(LENGTH,node<T>());
+            __init_n(LENGTH, T());
         }
 
 
 
         //析构函数
-        ~vector()
+        ~thread_safe_vector()
         {
             __destroy_mem(start_ , start_ + LENGTH);
-            __deallocate_mem(start, start_ + LENGTH);
+            __deallocate_mem(start_, start_ + LENGTH);
         }
         //------------------------------------------------------------这一组是公共接口，对外的api----------------------------------------------
     public:
         // @parm ret通过这个引用来获取数组第一个元素的值，这里使用了移动拷贝来提高效率。
         // @返回bool值，如果为true代表获取了第一个元素应调用消费者，如果为false，当前数组为空，应调用生产者。
-        //
-        bool pop_front(reference ret)
+        bool pop_front(reference _ret)
         {
             int nowCount = readableCount_--;
             if(nowCount < 0)//如果发现可以写的数量太少，就加回去，然后继续等待。这里最好是能够唤醒生产者。//
@@ -79,17 +78,40 @@ namespace LT {
 
             int idx = front_++;
             idx %= LENGTH;//以防万一
-            front_ %= LENGTH;//
-            ret = LT::move(*(start_ + idx));
+            front_ = front_ % LENGTH;//
+            _ret = LT::move(*(start_ + idx));
             ++writableCount_;
             return true;
+        }
+
+        // 无参版本，会阻塞线程
+        //
+        value_type pop_front_choke()
+        {
+            while (true)
+            {
+                int nowCount = readableCount_--;
+                if (nowCount < 0)//持续等待生产者生产
+                {
+                    ++readableCount_;
+                }
+                else { break; }
+            }
+
+            int idx = front_++;
+            idx %= LENGTH;//以防万一
+            front_ = front_ % LENGTH;//
+            value_type tmp = LT::move(*(start_ + idx));
+            ++writableCount_;
+            return tmp;
+            
         }
 
         // @parm _args 可以传入左值或者右值引用
         // @返回bool值，如果为true代表填充了一个元素应调用生产者，如果为false，当前数组为空，应调用生产者。
         //
-        template<class Args>
-        bool push_back(Args&& _args) {
+   
+        bool push_back(value_type && _value) {
 
             int nowCount = writableCount_--;
             if(writableCount_ < 0)
@@ -100,13 +122,32 @@ namespace LT {
 
             int idx = back_++;
             idx %= LENGTH;//以防万一
-            front_ %= LENGTH;//
-            *(start_ + idx) = LT::forward<Args>(_args);//支持右值或左值
+            back_ = back_ % LENGTH;//
+            *(start_ + idx) = LT::move(_value);//支持右值或左值
             ++readableCount_;
-            return tmp;
+            return true;
         }
 
+        // 无返回值版本，会阻塞线程等待消费者消费
+       //
+        void push_back_choke(value_type&& _value) {
+            int nowCount = writableCount_--;
+            while (true)
+            {
+                if (writableCount_ < 0)
+                {
+                    ++writableCount_;               
+                }
+                else {break;}
+            }
+            
 
+            int idx = back_++;
+            idx %= LENGTH;//以防万一
+            back_ = back_ % LENGTH;//
+            *(start_ + idx) = LT::move(_value);//支持右值或左值
+            ++readableCount_;
+        }
 
         bool full()
         {
@@ -188,8 +229,6 @@ namespace LT {
             iterator newMem = __get_mem(_size);
             __construct_mem_n(newMem, _size, _value);
             start_ = newMem;
-            finish_ = newMem + _size;
-            endOfStorage_ = newMem + _size;
             front_ = 0;
             back_ = 0;
             writableCount_ = LENGTH;
