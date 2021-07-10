@@ -482,7 +482,6 @@ namespace LT {
 		template<>
 		void __init_iter<const_iterator>(const_iterator _first, const_iterator _last)
 		{
-
 			//先确定长度
 			int needSize = LT::distance(_first, _last);
 			if (needSize <= 0) { return; }
@@ -506,8 +505,7 @@ namespace LT {
 		void __init_iter_n(size_type _n ,InputIterator _first, InputIterator _last,
 			iterator _start, iterator _finish, iterator _endOfStorage, 
 			size_type _copySize = 0, const T& _extrVal = T())
-		{
-			
+		{	
 			//先确定长度
 			if (!_copySize) { _copySize = LT::distance(_first, _last); }
 			size_type copySize = min(_copySize, static_cast<size_type>(_last - _first));
@@ -571,7 +569,6 @@ namespace LT {
 			}
 		}
 		
-
 		//-------------------------------------内存移动函数-----------------------------------------------
 		//把从_pos开始的元素在内存区域内向后移动n个距离,调用该函数的前提是空间足够大
 		LT::pair<size_type, size_type> __move_mem_back(iterator _pos, size_type _n)
@@ -582,9 +579,9 @@ namespace LT {
 				return make_pair<size_type,size_type>(0,0);
 			}
 			size_type backSize = finish_ - _pos;
+
 			//如果n比backSize小，那么是需要把n个元素移动到未初始化的内存区域
-			//如果n比backSize大，那么是需要把backSize个元素移动到未初始化的区域，其中有backSize个元素将需要被拷贝初始化
-			
+			//如果n比backSize大，那么是需要把backSize个元素移动到未初始化的区域，其中有backSize个元素将需要被拷贝初始化	
 			if (_n < backSize)
 			{
 				LT::uninitialized_move(finish_ - _n, finish_, finish_);//后面_n个是复制到未初始化空间
@@ -610,7 +607,8 @@ namespace LT {
 			LT::move(_pos, finish_, startPos);
 
 		}
-		void __resize(size_type _newSize, value_type _value) {
+		void __resize(size_type _newSize, value_type _value)
+		{
 			//要进行异常保证，所以构造的时候要不就是一起构造，要不就是一起不构造。
 			//使用提供异常保证的内存管理工具，在"uninitialized.h"头文件上。
 			if(_newSize < size()){
@@ -623,7 +621,8 @@ namespace LT {
 				LT::uninitialized_fill(finish_, endOfStorage_, _value);
 			}
 		}
-		void __reserve(size_type _newSize) {
+		void __reserve(size_type _newSize) 
+		{
 			int curCap = capacity();
 			if (_newSize < capacity()) {
 				__move_house(_newSize, size());
@@ -667,7 +666,6 @@ namespace LT {
 			}
 			return pos;
 		}
-
 	};
 
 	//***************************************************************************************************

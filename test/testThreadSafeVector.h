@@ -6,13 +6,14 @@
 #include <thread>
 #include "../thread_safe_vector.h"
 
-#define TESTNUM 1000
+#define TESTNUM 10000000
+#define EXPAN__TEST 0.1
 namespace LT {
     namespace test {
         using namespace std;
         static int i;
         static vector<int>ret1, ret2;
-        static thread_safe_vector<int, TESTNUM> arr;
+        static thread_safe_vector<int, int(TESTNUM * EXPAN__TEST)> arr;
         
 
         void increase(vector<int>* _arr)
@@ -47,20 +48,22 @@ namespace LT {
         namespace thread_safe_vector_test {
 
             
-            void get(vector<int>* _ret, thread_safe_vector<int, TESTNUM>* _arr)
+            void get(vector<int>* _ret, thread_safe_vector<int,int(EXPAN__TEST * TESTNUM)>* _arr)
             {
                 for (int i = 0; i < TESTNUM; ++i)
                 {
-                    _ret->push_back(_arr->pop_front_choke());
+                    int tmp = _arr->pop_front_choke();                    
+                    _ret->push_back(tmp);
                 }
 
             }
 
-            void push(int _initValue, thread_safe_vector<int, TESTNUM>* _arr)
+            void push(int _initValue, thread_safe_vector<int, int(EXPAN__TEST * TESTNUM)>* _arr)
             {
                 for (int i = 0; i < TESTNUM; ++i)
                 {
-                    _arr->push_back_choke(_initValue + i);
+                    int tmp =  _initValue  + i;
+                    _arr->push_back_choke(tmp);
                 }
             }
 
@@ -73,15 +76,17 @@ namespace LT {
                 
                 thread produceThread1(push, 0, &arr);
                 thread produceThread2(push, TESTNUM, &arr);
-                thread costThread1(get, &ret1, &arr);       
+                thread costThread1(get, &ret1, &arr);
                 thread costThread2(get, &ret2, &arr);
-                costThread1.join();
+                
                 costThread2.join();
                 produceThread1.join();
                 
+                costThread1.join();
+
                 produceThread2.join();
 
-                vector<int> ret(2 * TESTNUM);
+                vector<int> ret(ret1.size() + ret2.size());
                 for (int val : ret1)
                 {
                     ++ret[val];
@@ -99,8 +104,15 @@ namespace LT {
                     }
                 }
                 cout << "test thread_safe_vector " << (isSuccess ? "pass" : "failed" ) << '\n' ;
-            }
-            
+       
+                //验证循环溢出正确性
+               /* unsigned char a = 0;
+                for (int i = 0; i < pow(2, 10); ++i)
+                {
+                    cout << int(a++) << endl;
+                }*/
+                return;
+            }  
         }
     }
 }
