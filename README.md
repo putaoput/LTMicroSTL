@@ -46,9 +46,9 @@ ___
     * stack
     * queue
     * priority_queue
-    * unordered_map (包装了rb_tree)
+    * unordered_map(包装了hashtable)
     * unordered_set
-    * set(包装了hashtable)
+    * set(包装了rb_tree)
     * map
     * thread_safe_deque
   * iterator adapters
