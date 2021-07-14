@@ -20,7 +20,6 @@ namespace LT {
 		size_t dequeBufSize =  _bufSize / _TSize;
 		return dequeBufSize ? dequeBufSize : 1;//bufSize至少可以容纳一个T。
 	}
-	
 
 	//*************************************************************************************************
 	//*****************************************deque的迭代器*******************************************
@@ -35,7 +34,6 @@ namespace LT {
 		static size_t buffer_size() { return __deque_buf_size(_BufSize, sizeof(T)); }
 
 		////自行撰写五个必要的迭代器型别
-		//typedef random_access_iterator_tag                          iterator_category;
 		typedef T													value_type;
 		typedef Ptr													pointer;
 		typedef Ref													reference;
@@ -82,6 +80,15 @@ namespace LT {
 			_rhs.clear();
 			return *this;
 		}
+		self& operator=(const_iterator&& _rhs)
+        {
+            node_ = _rhs.node_;
+        	cur_ = _rhs.cur_;
+        	first_ = _rhs.first_;
+        	last_ = _rhs.last_;
+        	_rhs.clear();
+        	return *this;
+        }
 		void set_node(map_pointer _newNode) {
 			node_ = _newNode;
 			first_ = *_newNode;
