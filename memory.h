@@ -94,13 +94,12 @@ namespace LT {
 		bool release()
 		{
 			--pCount_;
-			return pCount_;
+			return !pCount_;
 		}
 
 	private:
 		pointer ptr_;
 		std::atomic<size_type> pCount_;
-		//std::function<void(pointer)> deleter_;
 		Deleter deleter_;
 
 	};

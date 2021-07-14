@@ -173,6 +173,7 @@
     <ClInclude Include="test\testUnordered_map.h" />
     <ClInclude Include="test\testUnordered_set.h" />
     <ClInclude Include="test\testVector.h" />
+    <ClInclude Include="thread_safe_deque.h" />
     <ClInclude Include="thread_safe_vector.h" />
     <ClInclude Include="type_traits.h" />
     <ClInclude Include="uninitialized.h" />

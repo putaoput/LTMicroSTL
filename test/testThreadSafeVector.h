@@ -6,8 +6,8 @@
 #include <thread>
 #include "../thread_safe_vector.h"
 
-#define TESTNUM 10000000
-#define EXPAN__TEST 0.1
+#define TESTNUM 1000000
+#define EXPAN__TEST 0.001
 namespace LT {
     namespace test {
         using namespace std;

@@ -142,7 +142,6 @@ namespace LT {
                 int i = 1;
             }
             return node.data_;
-            
         }
 
         // @parm _args 可以传入左值或者右值引用

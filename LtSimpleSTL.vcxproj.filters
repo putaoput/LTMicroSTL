@@ -171,6 +171,9 @@
     <ClInclude Include="test\testThreadSafeVector.h">
       <Filter>头文件\test</Filter>
     </ClInclude>
+    <ClInclude Include="thread_safe_deque.h">
+      <Filter>头文件\线程安全的容器</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="unordered_map.h">
