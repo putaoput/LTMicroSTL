@@ -163,12 +163,12 @@ namespace LT {
 	template <class BidirectionalIterator, class Distance>
 	inline void __advance(BidirectionalIterator& _it, Distance _n, bidirectional_iterator_tag) {
 		if (_n >= 0) {
-			while (--_n) {
+			while (_n--) {
 				++_it;
 			}
 		}
 		else {
-			while (++_n) {
+			while (_n++) {
 				--_it;
 			}
 		}

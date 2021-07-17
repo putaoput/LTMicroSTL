@@ -43,12 +43,12 @@ namespace LT
 				LT::list<int> l7{ 1,2,3,4,5,6,7,8,9 };
 				LT::list<int> l8;
 				l8 = l3;
-				//LT::list<int> l9;
-				/*l9 = std::move(l3);
+				LT::list<int> l9;
+				l9 = std::move(l3);
 				LT::list<int> l10;
-				l10 = { 1, 2, 2, 3, 5, 6, 7, 8, 9 };*/
+				l10 = { 1, 2, 2, 3, 5, 6, 7, 8, 9 };
 
-				/*FUN_AFTER(l1, l1.assign(8, 8));
+				FUN_AFTER(l1, l1.assign(8, 8));
 				FUN_AFTER(l1, l1.assign(a, a + 5));
 				FUN_AFTER(l1, l1.assign({ 1,2,3,4,5,6 }));
 				FUN_AFTER(l1, l1.insert(l1.end(), 6));
@@ -78,12 +78,12 @@ namespace LT
 				FUN_VALUE(l1.size());
 				FUN_AFTER(l1, l1.assign({ 9,5,3,3,7,1,3,2,2,0,10 }));
 				FUN_VALUE(l1.size());
-				FUN_AFTER(l1, l1.sort());
+				//FUN_AFTER(l1, l1.sort());
 				FUN_AFTER(l1, l1.unique());
 				FUN_AFTER(l1, l1.unique([&](int a, int b) {return b == a + 1; }));
-				FUN_AFTER(l1, l1.merge(l7));
-				FUN_AFTER(l1, l1.sort(LT::greater<int>()));
-				FUN_AFTER(l1, l1.merge(l8, LT::greater<int>()));
+				//FUN_AFTER(l1, l1.merge(l7));
+				//FUN_AFTER(l1, l1.sort(LT::greater<int>()));
+				//FUN_AFTER(l1, l1.merge(l8, LT::greater<int>()));
 				FUN_AFTER(l1, l1.reverse());
 				FUN_AFTER(l1, l1.clear());
 				FUN_AFTER(l1, l1.swap(l9));
@@ -118,7 +118,7 @@ namespace LT
 				std::cout << "|---------------------|-------------|-------------|-------------|" << std::endl;
 				PASSED;
 #endif
-				std::cout << "[------------------ End container test : list ------------------]" << std::endl;*/
+				std::cout << "[------------------ End container test : list ------------------]" << std::endl;
 			}
 
 		} // namespace list_test

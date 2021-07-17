@@ -14,6 +14,7 @@ namespace LT {
 	///**************************************************************************************************************
 	//----------------------------------------------list的结点-------------------------------------------------------
 	//先设计一个list的结点
+	//list节点设计有更优的设计方案，关于设计方案的思考记在了我的博客上：https://www.yuque.com/putaoput/umu9u4/zgmozr
 	template<class T>
 	struct __list_node
 	{
@@ -58,9 +59,9 @@ namespace LT {
 		typedef __list_node<T>*						 node_pointer;
 		typedef __list_node<T>						 node;
 		typedef size_t                               size_type;
-		typedef __list_iterator<T, Ref, Ptr>	     self;
+		typedef __list_iterator<T, Ref, Ptr>		     self;
 		typedef __list_iterator<T, T&, T*>			 iterator;
-		
+		typedef __list_iterator<T, const T&, const T*>				const_iterator;
 
 		//指向一个list结点的指针
 		node_pointer nodePtr_;
@@ -69,10 +70,13 @@ namespace LT {
 		//---------------------------------------构造系列函数------------------------------------------------------------------------
 		__list_iterator() = default;	//给用户定义的构造函数，即使它什么也不做，使得类型不是聚合，也不是微不足道的。如果您希望您的类是聚合类型或普通类型（或通过传递性，POD类型），那么需要使用’= default’。
 										//使用’ = default’也可以与复制构造函数和析构函数一起使用。例如，空拷贝构造函数与默认拷贝构造函数（将执行其成员的复制副本）不同。对每个特殊成员函数统一使用’ = default’语法使代码更容易阅读。
-		__list_iterator(const node_pointer& _nodePtr):nodePtr_(_nodePtr){}
+		__list_iterator(node_pointer _nodePtr):nodePtr_(_nodePtr){}
 		__list_iterator(const iterator& _rhs):nodePtr_(_rhs.nodePtr_){}
+	
 		__list_iterator(iterator&& _rhs) :nodePtr_(_rhs.nodePtr_) { _rhs.nodePtr_ = nullptr; }
 		__list_iterator(const node& _node):nodePtr_(&_node){}
+		__list_iterator(const const_iterator& _rhs):nodePtr_(_rhs.nodePtr_){}
+		__list_iterator(const_iterator&& _rhs) :nodePtr_(_rhs.nodePtr_) { _rhs.nodePtr_ = nullptr; }
 		self& operator=(const iterator& _rhs) {
 			nodePtr_ = _rhs.nodePtr_;
 			return *this;
@@ -128,6 +132,17 @@ namespace LT {
 		}
 
 	};
+
+	template<class T, class Ref, class Ptr>
+	bool operator==(__list_iterator<T, Ref, Ptr> _lhs, __list_iterator<T, Ref, Ptr> _rhs)
+	{
+		return _lhs.operator==(_rhs);
+	}
+	template<class T, class Ref, class Ptr>
+	bool operator!=(__list_iterator<T, Ref, Ptr> _lhs, __list_iterator<T, Ref, Ptr> _rhs)
+	{
+		return _lhs.operator!=(_rhs);
+	}
 	//*****************************************************************************************************************
 	//---------------------------------------------------list-------------------------------------------------------
 	template <class T, class Alloc = allocator<T>>
@@ -138,8 +153,8 @@ namespace LT {
 		typedef value_type*											pointer;
 		typedef value_type&											reference;
 		typedef size_t												size_type;
-		typedef __list_iterator<T, T*, T&>							iterator;
-		typedef __list_iterator<T, const T*, const T&>				const_iterator;
+		typedef __list_iterator<T, T&, T*>							iterator;
+		typedef __list_iterator<T, const T&, const T*>				const_iterator;
 		typedef __list_node<T>										list_node;
 		typedef list_node*											list_node_pointer;
 		typedef LT::reverse_iterator<iterator>						reverse_iterator;
@@ -161,15 +176,15 @@ namespace LT {
 				typename std::enable_if<LT::is_input_iterator<InputIter>::value, int>::type = 0>
 		list(InputIter _itBeign, InputIter _itEnd) { __init_iter(_itBeign, _itEnd); }
 		list(std::initializer_list<T> _ilist) { __init_iter(_ilist.begin(), _ilist.end()); }
-		list(const list& _rhs)
+		list(list& _rhs)
 		{
-			//__init_iter(_rhs.begin(), _rhs.begin());
+			__init_iter(_rhs.begin(), _rhs.end());
 		}
 		list(list&& _rhs) :nodePtr_(_rhs.nodePtr_) { _rhs.nodePtr_ = nullptr; }
 		list& operator=(const list& _rhs) {
 			if (*this != _rhs)
 			{
-				//__assign_iter(begin(), end());
+				__assign_iter(begin(), end());
 			}
 			return *this;
 		}
@@ -196,11 +211,13 @@ namespace LT {
 
 		//------------------------------------------------------迭代器----------------------------------------------------------------
 		iterator begin() { return static_cast<iterator>(nodePtr_->next); }//因为迭代器内部只有一个list_node_pointer,所以可以直接进行静态类型转换
+		iterator begin()const { return static_cast<const_iterator>(nodePtr_->next); }
 		const_iterator cbegin() { return static_cast<const_iterator>(nodePtr_->next); }
 		reverse_iterator rbegin() { return reverse_iterator(end()); }//因为迭代器内部只有一个list_node_pointer,所以可以直接进行静态类型转换
 		const_reverse_iterator crbegin() { return reverse_iterator(cend()); }
 
 		iterator end() { return static_cast<iterator>(nodePtr_); }//因为迭代器内部只有一个list_node_pointer,所以可以直接进行静态类型转换
+		iterator end() const{ return static_cast<const_iterator>(nodePtr_); }
 		const_iterator cend() { return static_cast<const_iterator>(nodePtr_); }
 		reverse_iterator rend() { return reverse_iterator(begin()); }//因为迭代器内部只有一个list_node_pointer,所以可以直接进行静态类型转换
 		const_reverse_iterator crend() { return reverse_iterator(cbegin()); }
@@ -245,9 +262,9 @@ namespace LT {
 		template<class ...Args>
 		void emplace(iterator _pos, Args&&... _value) { __emplace(_pos,LT::forward<Args>(_value)...); }
 		template <class ...Args>
-		void emplace_front(Args&& ..._args) { __emplace(end(), LT::forward<Args>(_args)...); }
+		void emplace_front(Args&& ..._args) { __emplace(begin(), LT::forward<Args>(_args)...); }
 		template<class ...Args>
-		void emplace_back(Args&& ..._args) { __emplace(begin(), LT::forward<Args>(_args)...); }
+		void emplace_back(Args&& ..._args) { __emplace(end(), LT::forward<Args>(_args)...); }
 
 		void assign(size_type _n,const value_type& _value) { __assignN(_n, _value); }
 		template<class InputIter,
@@ -262,7 +279,7 @@ namespace LT {
 			auto newNode = __allocate_one_node_mem();
 			__construct_one_node(newNode, _value, preNode, _pos.nodePtr_);
 			preNode->next = newNode;
-			_pos->pre = newNode;
+			_pos.nodePtr_->pre = newNode;
 			return static_cast<iterator> (newNode);
 		}
 		iterator insert(iterator _pos, size_type _n, const value_type& _value)
@@ -317,8 +334,8 @@ namespace LT {
 			assert(_pos != end());
 			list_node_pointer preNode = _pos.nodePtr_->pre;
 			list_node_pointer nextNode = _pos.nodePtr_->next;
-			preNode->next = preNode;
-			nextNode->pre = nextNode;
+			preNode->next = nextNode;
+			nextNode->pre = preNode;
 			__destroy_one_node(_pos.nodePtr_);
 			__deallocate_one_node_mem(_pos.nodePtr_);
 			return static_cast<iterator>(nextNode);
@@ -327,8 +344,8 @@ namespace LT {
 		{
 			list_node_pointer preNode = _itBeg.nodePtr_->pre;
 			list_node_pointer nextNode = _itEnd.nodePtr_;
-			preNode->next = preNode;
-			nextNode->pre = nextNode;
+			preNode->next = nextNode;
+			nextNode->pre = preNode;
 			while (_itBeg != _itEnd) {
 				iterator tmp = _itBeg++;
 				__destroy_one_node(tmp.nodePtr_);
@@ -365,13 +382,15 @@ namespace LT {
 		void remove_if(Op _op)
 		{
 			iterator it = begin();
-			while (it != end())
+			while (it != nodePtr_) //注意这里如果用end()，每次判断都要调用end函数，并且生
 			{
 				if (_op(*it)) {
-					auto tmp = it;
-					++it;
+					auto tmp = it++; //这里一定要在删除前自增。
 					erase(tmp);
 				}
+				else {
+					++it;
+				}			
 			}
 		}
 
@@ -398,14 +417,15 @@ namespace LT {
 			iterator next = begin();
 			iterator cur = next++;
 			while (next != end()) {
-				if (_pre(*cur, *next))
+				if (_pred(*cur, *next))
 				{
 					erase(next);
 				}
 				else {
 					cur = next;
 				}
-				next = cur + 1;
+				next = cur;
+				++next;
 			}
 
 		}
@@ -518,6 +538,13 @@ namespace LT {
 			return _ptr;
 		}
 
+		template<class ...Args>
+		inline list_node_pointer __construct_one_node_no_setting(list_node_pointer _ptr, Args&& ..._args) 
+		{
+			LT::construct(LT::address_of(_ptr->data), LT::forward<Args>(_args)...);
+			return _ptr;
+		}
+
 		inline void __destroy_one_node(list_node_pointer _ptr) {
 			LT::destroy(LT::address_of(_ptr->data));
 		}
@@ -601,12 +628,13 @@ namespace LT {
 		
 		template<class InputIterator>
 		inline void __assign_iter(InputIterator _first, InputIterator _last) {
-			/*size_type n = static_cast<size_type>(LT::distance(_first, _last));
+			size_type n = static_cast<size_type>(LT::distance(_first, _last));
 			iterator cur = begin();
 			while (cur != end() && n) {
-				*_first = *cur;
+				*cur = *_first;
 				--n;
 				++_first;
+				++cur;
 			}
 			if (cur != end()) {
 				 erase(cur, end());
@@ -614,7 +642,7 @@ namespace LT {
 			else if (n) {
 				insert(end(),n,*_first);
 				++_first;
-			}*/
+			}
 		}
 
 		//resize的实现
@@ -625,6 +653,7 @@ namespace LT {
 			while (_n)
 			{
 				emplace_back(_value);
+				--_n;
 			}
 		}
 		
@@ -632,9 +661,17 @@ namespace LT {
 		template<class ...Args>
 		inline void __emplace(iterator _pos, Args&& ..._value) {
 			list_node_pointer pre = _pos.nodePtr_->pre;
-			//list_node_pointer newNode = 
+			list_node_pointer newNode = __allocate_one_node_mem();
+			list_node_pointer nextNode = _pos.nodePtr_;
+			__construct_one_node_no_setting(newNode, LT::forward<Args>(_value)...);
+			pre->next = newNode;
+			newNode->pre = pre;
+			newNode->next = nextNode;
+			nextNode->pre = newNode;
 		}
 		//-------------------------------------------内部接口---------------------------------------------------------
+
+
 		void __transfer_(iterator _pos, iterator _first, iterator _last) {//将[first,end)之间的元素移到_pos之前。可以是同一个list内的两段区间
 			if (_pos != _last) {
 				list_node_pointer preNode = _pos.nodePtr_->pre;
@@ -656,26 +693,30 @@ namespace LT {
 			if (_n == 1 || _n == 0) { return; }
 
 			//使用归并排序
+			iterator beg = _itBegin;
 			size_type half = _n / 2;
-			iterator theNext = _itBegin + half;
+			iterator theNext = _itBegin;
+			LT::advance(theNext, half);
 			__sort(_itBegin, half, _cmp);
 			__sort(theNext, _n - half, _cmp);
 			//此时已经是两个有序链表了。
-			
-			while(_itBegin != _itBegin + half && theNext != _itBegin + _n) {
+			iterator firstEnd = theNext;
+			iterator secondEnd = firstEnd;
+			LT::advance(secondEnd, _n - half);
+			while(_itBegin != firstEnd && theNext != secondEnd) {
 				if (_cmp(*_itBegin, *theNext)) {
 					++_itBegin;
 				}
 				else {
 				//说明需要将2合并过去了。
 				iterator tmpBeg2 = _itBegin;
-				while (theNext != _itBegin + _n && _cmp(*theNext, *_itBegin)) {
+				while (theNext != secondEnd && _cmp(*theNext, *_itBegin)) {
 					++theNext;
 				}
 				__transfer_(_itBegin, tmpBeg2, theNext);
 				}
-				if (theNext != _itBegin + _n) {
-					__transfer_(_itBegin + half, theNext, _itBegin + _n);
+				if (theNext != secondEnd) {
+					__transfer_(firstEnd, theNext, secondEnd);
 				}
 			}
 
@@ -694,13 +735,16 @@ namespace LT {
 	}
 	template<class T>
 	bool operator==(const list<T>& _lhs, const list<T>& _rhs) {
-		auto it1 = _lhs.cbegin();
-		auto it2 = _rhs.cbegin();
-		while (it1 != _lhs.cend() && it2 != _rhs.cend())
+		typedef typename list<T>::const_iterator const_iterator;
+		const_iterator it1 = _lhs.begin();
+		const_iterator it2 = _rhs.begin();
+		const_iterator last1 = _lhs.end();
+		const_iterator last2 = _rhs.end();
+		while (it1 != last1 && it2 != last2)
 		{
 			if (*it1 != *it2) { return false; }
 		}
-		return it1 == _lhs.cend() && it2 = _rhs.cend();
+		return it1 == last1 && it2 == last2;
 	}
 	template <class T>
 	bool operator!=(const list<T>& _lhs, const list<T>& _rhs) {

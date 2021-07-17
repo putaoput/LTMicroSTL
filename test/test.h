@@ -656,7 +656,7 @@ void test_len(size_t len1, size_t len2, size_t len3, size_t wide)
   FUN_TEST_FORMAT1(std::con, fun, arg, len1);                \
   FUN_TEST_FORMAT1(std::con, fun, arg, len2);                \
   FUN_TEST_FORMAT1(std::con, fun, arg, len3);                \
-  std::cout << "\n|        LT        |";                  \
+  std::cout << "\n|         LT          |";                  \
   FUN_TEST_FORMAT1(LT::con, fun, arg, len1);              \
   FUN_TEST_FORMAT1(LT::con, fun, arg, len2);              \
   FUN_TEST_FORMAT1(LT::con, fun, arg, len3);    
@@ -667,7 +667,7 @@ void test_len(size_t len1, size_t len2, size_t len3, size_t wide)
   FUN_TEST_FORMAT2(std::con, fun, arg1, arg2, len1);         \
   FUN_TEST_FORMAT2(std::con, fun, arg1, arg2, len2);         \
   FUN_TEST_FORMAT2(std::con, fun, arg1, arg2, len3);         \
-  std::cout << "\n|        LT        |";                  \
+  std::cout << "\n|          LT         |";                  \
   FUN_TEST_FORMAT2(LT::con, fun, arg1, arg2, len1);       \
   FUN_TEST_FORMAT2(LT::con, fun, arg1, arg2, len2);       \
   FUN_TEST_FORMAT2(LT::con, fun, arg1, arg2, len3);    
@@ -678,7 +678,7 @@ void test_len(size_t len1, size_t len2, size_t len3, size_t wide)
   MAP_EMPLACE_DO_TEST(std, con, len1);                       \
   MAP_EMPLACE_DO_TEST(std, con, len2);                       \
   MAP_EMPLACE_DO_TEST(std, con, len3);                       \
-  std::cout << "\n|        LT        |";                  \
+  std::cout << "\n|          LT        |";                  \
   MAP_EMPLACE_DO_TEST(LT, con, len1);                     \
   MAP_EMPLACE_DO_TEST(LT, con, len2);                     \
   MAP_EMPLACE_DO_TEST(LT, con, len3);
@@ -689,7 +689,7 @@ void test_len(size_t len1, size_t len2, size_t len3, size_t wide)
   LIST_SORT_DO_TEST(std, len1);                              \
   LIST_SORT_DO_TEST(std, len2);                              \
   LIST_SORT_DO_TEST(std, len3);                              \
-  std::cout << "\n|        LT        |";                  \
+  std::cout << "\n|          LT         |";                  \
   LIST_SORT_DO_TEST(LT, len1);                            \
   LIST_SORT_DO_TEST(LT, len2);                            \
   LIST_SORT_DO_TEST(LT, len3);
