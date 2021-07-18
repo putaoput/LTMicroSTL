@@ -11,7 +11,8 @@
 #include "stl_algo.h"
 //#include "algobase.h"
 #include "memory.h"
-#include <vector>//自己写的vector还没调试完成
+#include "vector"
+#include <vector>
 
 //该头文件负责提供基本数据结构:哈希表。以模板的形式定义
 //从实现hashtable开始，学习并使用了桥接模式这一设计模式
@@ -398,7 +399,7 @@ namespace LT {
 		private:
 			hasher					hash_;
 			key_equal				equals_;
-			std::vector<node_ptr>	buckets_;
+			std::vector<node_ptr>		buckets_;
 			size_type				elementsNum_;
 			float					maxLoadFactor_;//最大负载系数
 

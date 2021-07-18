@@ -39,6 +39,7 @@ namespace LT {
 	{
 		if (!_n) { return nullptr; }//经过实践发现，如果new的大小为零，也是会返回一个不为空指针指向大小不为零的内存区域
 		return static_cast<T*>(::operator new(_n * sizeof(T)));//调用到全局函数，只有这么调用new 才可以满足这种语法。
+		
 	}
 
 	template <class T>

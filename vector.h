@@ -438,16 +438,19 @@ namespace LT {
 		//用于确定扩容是需要的新容量大小
 		size_type __get_new_memSize(size_type _needSize)
 		{
-			size_type initCap = max(static_cast<size_type>(1), capacity());
-			while (initCap < _needSize && static_cast<size_type>(initCap * EXPAN) == initCap)//防止出现由于EXPAN系数小而无法扩容的bug
+			size_type initCap =  capacity();
+			if (initCap == 0) { initCap = _needSize; }//空数组扩容策略
+			else if(EXPAN == 2.0)//使用两倍扩容策略
 			{
-				++initCap;
+				while (initCap < _needSize)
+				{
+					initCap <<= 1;
+				}
 			}
-			while (initCap < _needSize)
-			{
-				initCap *= EXPAN;
-				
+			else {
+				initCap = max(static_cast<size_type>(initCap * EXPAN), initCap + 1);
 			}
+			
 			return initCap;
 		}
 

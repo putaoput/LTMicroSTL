@@ -196,6 +196,10 @@ namespace LT {
 		bool operator>=(const self& _rhs) const { return !(*this < _rhs); }
 	};
 
+	//*************************************************************************************************
+	//*****************************************deque的实现*******************************************
+	//*************************************************************************************************
+
 	template<typename T, typename Alloc = allocator<T>, size_t _BufSize = 4096>
 	class deque {
 	public:
@@ -235,17 +239,7 @@ namespace LT {
 		deque(std::initializer_list<value_type> _ilist) { __init_iter(_ilist.begin(), _ilist.end()); }
 		deque(const deque& _rhs)
 		{
-		/*	iterator beg;
-			beg.cur_ = (int*)_rhs.begin().cur_;
-			beg.first_ = (int*)_rhs.begin().first_;
-			beg.last_ = (int*)_rhs.begin().last_;
-			iterator end;
-			end.cur_ = (int*)_rhs.end().cur_;
-			end.first_ = (int*)_rhs.end().first_;
-			end.last_ = (int*)_rhs.end().last_;
-			__init_iter(beg, end);*/
 			__init_iter(_rhs.begin(), _rhs.end());
-			
 		}
 		deque(deque&& _rhs) 
 		{
@@ -273,8 +267,9 @@ namespace LT {
 			mapSize_ = _rhs.mapSize_;
 			_rhs.map_ = nullptr;
 			_rhs.mapSize_ = 0;
+			return *this;
 		}
-		~deque() { __deallocate_all_mem(map_, map_ + mapSize_); }
+		~deque() { __deallocate_all_mem(); }
 
 
 		//------------------------------------------------------迭代器相关--------------------------------------------
@@ -298,95 +293,95 @@ namespace LT {
 		void resize(size_type _newSize) { __resize(_newSize, T()); }
 		void resize(size_type _newSize, const value_type& _value) { __resize(_newSize, _value); }
 		void shrink_to_fit() { __shrink_to_fit(); }
-//
-//		//----------------------------------------------------元素访问------------------------------------------------
-//		reference operator[](size_type _n) { return start_[static_cast<difference_type>(_n)]; }
-//		reference at(size_type _n) { return (*this)[_n]; }
-//
-//
-//		//----------------------------------------------------元素变动------------------------------------------------
-//		void push_front(const value_type& _value){
-//			if (start_.cur_ == start_.first_) {//说明空间不充足,需要跳跃到下一个node
-//				__create_new_map_front();
-//			}
-//			LT::construct(LT::address_of(--start_.cur_), _value);
-//		}
-//		void push_front(const value_type&& _value) { emplace_front(LT::move(_value)); }
-//		void push_back(const value_type& _value){
-//			if (finish_.cur_ == finish_.last_ - 1) {//说明空间不充足,需要跳跃到下一个node
-//				__create_new_map_back();
-//			}
-//			LT::construct(LT::address_of(++finish_.cur_), _value);
-//		}
-//		void push_back(const value_type&& _value) {
-//			emplace_back(LT::move(_value));
-//		}
-//
-//		void pop_back()
-//		{
-//			if (start_ == finish_) { return; }
-//			if (finish_.cur_ == finish_.first_)
-//			{
-//				map_pointer nodeToDelete = finish_.node_;
-//				LT::destroy(LT::address_of(*(--finish_)));
-//				data_dealloctor(finish_.node_);//析构空余的空间
-//			}
-//			else {
-//				LT::destroy(LT::address_of(*(--finish_)));
-//			}
-//		}
-//		void pop_front()
-//		{
-//			if (start_ == start_) { return; }
-//			if (start_.cur_ == start_.last_ - 1)
-//			{
-//				map_pointer nodeToDelete = start_.node_;
-//				LT::destroy(LT::address_of(*(--start_)));
-//				data_dealloctor(start_.node_);//析构空余的空间
-//			}
-//			else {
-//				LT::destroy(LT::address_of(*(--start_)));
-//			}
-//		}
-//		template<class ...Args>
-//		void emplace_back(Args&&..._args) { __emplace_back(LT::forward<Args>(_args)...); }
-//		template<class ...Args>
-//		void emplace_front(Args&&..._args) { __emplace_front(LT::forward<Args>(_args)...); }
-//		template<class ...Args>
-//		iterator emplace(iterator _pos, Args&&..._args) { __emplace(_pos,LT::forward<Args>(_args)...); }
-//		iterator insert(iterator _pos, const value_type& _value){ __emplace(_pos, _value); }
-//		iterator insert(iterator _pos, const value_type&& _value) { __emplace(_pos,LT::move(_value)); }
-//		void insert(iterator _pos, size_type _n, const value_type& _value) { __insert_n(_pos, _n, _value); }
-//		template <class InputIterator,
-//				 typename std::enable_if<LT::is_input_iterator<InputIterator>::value, int>::type = 0>
-//		void insert(iterator _pos, InputIterator _first, InputIterator _last)
-//{
-//			__insert_by_iter(_pos, _first, _last);
-//		}
-//		iterator erase(iterator _pos) { __erase(_pos); }
-//		iterator erase(iterator _first, iterator _last) { __erase_by_iter(_first, _last); }
-//		
-//		void assign(size_type _n, const value_type& _value) { __assign_n(_n, _value); }
-//		template<class InputIter,
-//			typename LT::enable_if<LT::is_input_iterator<InputIter>::value, int>::type = 0>
-//			void assign(InputIter _first, InputIter _last) { __assign_iter(_first, _last); }
-//		void assign(std::initializer_list<value_type> _ilist) { __assign_iter(_ilist.begin(), _ilist.end()); }
-//		void swap(deque& _rhs)
-//		{
-//			if (_rhs != *this)
-//			{
-//				LT::swap(start_, _rhs.start_);
-//				LT::swap(finish_, _rhs.finish_);
-//				LT::swap(map_, _rhs.map_);
-//				LT::swap(mapSize_, _rhs.mapSize_);
-//
-//			}
-//		}
+
+		//----------------------------------------------------元素访问------------------------------------------------
+		reference operator[](size_type _n) { return start_[static_cast<difference_type>(_n)]; }
+		reference at(size_type _n) { return (*this)[_n]; }
+
+
+		//----------------------------------------------------元素变动------------------------------------------------
+		void push_front(const value_type& _value){
+			if (start_.cur_ == start_.first_) {//说明空间不充足,需要跳跃到下一个node
+				__create_new_map_front();
+			}
+			LT::construct(LT::address_of(--start_.cur_), _value);
+		}
+		void push_front(const value_type&& _value) { emplace_front(LT::move(_value)); }
+		void push_back(const value_type& _value){
+			if (finish_.cur_ == finish_.last_ - 1) {//说明空间不充足,需要跳跃到下一个node
+				__create_new_map_back();
+			}
+			LT::construct(LT::address_of(++finish_.cur_), _value);
+		}
+		void push_back(const value_type&& _value) {
+			emplace_back(LT::move(_value));
+		}
+
+		void pop_back()
+		{
+			if (start_ == finish_) { return; }
+			if (finish_.cur_ == finish_.first_)
+			{
+				map_pointer nodeToDelete = finish_.node_;
+				LT::destroy(LT::address_of(*(--finish_)));
+				__data_dealloctor(finish_.node_);//析构空余的空间
+			}
+			else {
+				LT::destroy(LT::address_of(*(--finish_)));
+			}
+		}
+		void pop_front()
+		{
+			if (start_ == start_) { return; }
+			if (start_.cur_ == start_.last_ - 1)
+			{
+				map_pointer nodeToDelete = start_.node_;
+				LT::destroy(LT::address_of(*(--start_)));
+				__data_dealloctor(start_.node_);//析构空余的空间
+			}
+			else {
+				LT::destroy(LT::address_of(*(--start_)));
+			}
+		}
+		template<class ...Args>
+		void emplace_back(Args&&..._args) { __emplace_back(LT::forward<Args>(_args)...); }
+		template<class ...Args>
+		void emplace_front(Args&&..._args) { __emplace_front(LT::forward<Args>(_args)...); }
+		template<class ...Args>
+		iterator emplace(iterator _pos, Args&&..._args) { __emplace(_pos,LT::forward<Args>(_args)...); }
+		iterator insert(iterator _pos, const value_type& _value){ __emplace(_pos, _value); }
+		iterator insert(iterator _pos, const value_type&& _value) { __emplace(_pos,LT::move(_value)); }
+		void insert(iterator _pos, size_type _n, const value_type& _value) { __insert_n(_pos, _n, _value); }
+		template <class InputIterator,
+				 typename std::enable_if<LT::is_input_iterator<InputIterator>::value, int>::type = 0>
+		void insert(iterator _pos, InputIterator _first, InputIterator _last)
+{
+			__insert_by_iter(_pos, _first, _last);
+		}
+		iterator erase(iterator _pos) { __erase(_pos); }
+		iterator erase(iterator _first, iterator _last) { __erase_by_iter(_first, _last); }
+		
+		void assign(size_type _n, const value_type& _value) { __assign_n(_n, _value); }
+		template<class InputIter,
+			typename LT::enable_if<LT::is_input_iterator<InputIter>::value, int>::type = 0>
+			void assign(InputIter _first, InputIter _last) { __assign_iter(_first, _last); }
+		void assign(std::initializer_list<value_type> _ilist) { __assign_iter(_ilist.begin(), _ilist.end()); }
+		void swap(deque& _rhs)
+		{
+			if (_rhs != *this)
+			{
+				LT::swap(start_, _rhs.start_);
+				LT::swap(finish_, _rhs.finish_);
+				LT::swap(map_, _rhs.map_);
+				LT::swap(mapSize_, _rhs.mapSize_);
+
+			}
+		}
 		void clear() {
 			__destroy_by_iter(begin(), end());
 			for (map_pointer cur = finish_.node_; cur != start_.node_; --cur)
 			{
-				data_dealloctor(*cur);
+				__data_dealloctor(*cur);
 				*cur = nullptr;
 			}
 			finish_ = start_;
@@ -399,34 +394,35 @@ namespace LT {
 		//*******************************************************内部实现**********************************************************
 		//************************************************************************************************************
 
+		//TODO
 		//需要两个空间配置器和两个空间析构器.在这里相当于忽略了模板的Alloc
 	protected:
 		#define MIN_MAP_NUM 8
-		template<class T,class Alloc>//
-		inline T* __deque_allocator(size_type _mapSize = iterator::buffer_size()){
-			//这个是按多少个T来分配大小
-			T* tmp =  LT::allocator<T>::allocate(_mapSize);
+		typedef  Alloc data_allocator; //指针采用默认分配方式，只有数据buffer部分支持自定义分配
+
+		pointer __data_alloctor(size_type  _bufferSize = iterator::buffer_size())
+		{
+			pointer tmp = LT::allocator<T>::allocate(_bufferSize);
 			assert(tmp);//内存不足分配就为空。
 			return tmp;
 		}
 
-		//typedef __deque_allocator<value_type, Alloc>	data_alloctor;//分配buffer
-		//typedef __deque_allocator<pointer, Alloc>		map_alloctor;//分配map
-		#define data_alloctor  __deque_allocator<value_type, Alloc> //分配buffer
-		#define map_alloctor   __deque_allocator<pointer, Alloc> //分配map
-
-		template<class T,class Alloc>//
-		inline void __deque_deallocator(T* _ptr, size_type _size) 
+		map_pointer __map_alloctor(size_type  _mapSize = iterator::buffer_size())
 		{
-			LT::allocator<T>::deallocate(_ptr,sizeof(T) * _size);
+			map_pointer tmp = LT::allocator<T*>::allocate(_mapSize);
+			assert(tmp);//内存不足。
+			return tmp;
+		};
+
+		void __map_dealloctor(map_pointer _mapPtr, size_type _size)
+		{
+			LT::allocator<pointer>::deallocate(_mapPtr, sizeof(pointer) * _size);
 		}
 
-		//typedef __deque_deallocator<value_type, Alloc> data_dealloctor;//析构buffer
-		//typedef __deque_deallocator<pointer, Alloc> map_dealloctor;//析构map
-		#define data_dealloctor  __deque_deallocator<value_type, Alloc> //析构buffer
-		#define map_dealloctor  __deque_deallocator<pointer, Alloc> //析构map
-
-
+		void __data_dealloctor(pointer _dataPtr, size_type _size)
+		{
+			LT::allocator<T>::deallocate(_dataPtr, sizeof(value_type) * _size);
+		}
 		//构造和析构一组迭代器所管理的内存
 
 		void __construct_by_iter(iterator _itBeg, iterator _itEnd, const value_type _value)
@@ -441,26 +437,32 @@ namespace LT {
 			LT::destroy(_itBeg, _itEnd);	
 		}
 
+		void __construct__map(map_pointer _ptr, pointer _value = nullptr)
+		{
+			LT::construct(_ptr, _value);
+		}
+
 		//该函数是进行初始化分配，而不是再分配，指定分配大小之后，三个迭代器在该函数之后都会被设置完好,mapSize也会被设置好
 		inline void __create_map_and_nodes(size_type _numElements) {
 			size_type nodeNum = _numElements / iterator::buffer_size() + 1;
 
 			//map需要管理的节点数应该是最少8个，最多是所需结点数+ 2;
 			mapSize_ = max(size_type(MIN_MAP_NUM), nodeNum + 2);//设置成员函数_mapSize
-			map_ = map_alloctor(mapSize_);
+			map_ = __map_alloctor(mapSize_);
+			//对map全部初始化成nullptr，方便以后析构的时候标记哪些内存区块用过
+			__construct__map(map_, nullptr);
 			map_pointer nstart = map_ + (mapSize_ - nodeNum) / 2;
 			map_pointer nfinish = nstart + nodeNum - 1;
 			map_pointer cur;
 			try {
 				for (cur = nstart; cur <= nfinish; ++cur) {
-					*cur = data_alloctor();
-					//*cur = __deque_allocator<value_type, Alloc>();
+					*cur = __data_alloctor();
 				}
 			}
 			catch (...) {
 				for (; cur > nstart;) {
 					--cur;
-					data_dealloctor(*cur,1);//rollback
+					__data_dealloctor(*cur,1);//rollback
 				}
 			}
 			//start,cur,finish都是指向的node结点，而node结点内部的信息由迭代器维护。因此用set_node更新迭代器内部的三个指针
@@ -476,9 +478,9 @@ namespace LT {
 		{
 			if (start_.node_ - _n < map_) {//map_前面没有空间了。
 				size_type distanceBack = finish_.node_ - map_;
-				map_pointer newMap = map_alloctor(mapSize_ + _n);
+				map_pointer newMap = __map_alloctor(mapSize_ + _n);
 				LT::copy(start_.node_, finish_.node_, newMap + _n);
-				map_dealloctor(map_);
+				__map_dealloctor(map_);
 				map_ = newMap;
 				mapSize_ += _n;
 				start_.node_ = (map_ + _n);
@@ -488,7 +490,7 @@ namespace LT {
 			{
 				if (*(start_.node_ - i) == nullptr)
 				{
-					*(start_.node_ - i) = data_alloctor();
+					*(start_.node_ - i) = __data_alloctor();
 				}
 			}
 		}
@@ -498,9 +500,9 @@ namespace LT {
 			if (finish_.node_ + _n > map_ + mapSize_) {//map_后面没有空间了。
 				size_type distancePre = start_.node_ - map_;
 				size_type distanceMid = finish_.node_ - start_.node_;
-				map_pointer newMap = map_alloctor(mapSize_ + _n);
+				map_pointer newMap = __map_alloctor(mapSize_ + _n);
 				LT::copy(map_, map_ + mapSize_, newMap + distancePre);
-				map_dealloctor(map_);
+				__map_dealloctor(map_);
 				map_ = newMap;
 				mapSize_ += _n;
 				start_.node_ = (map_ + distancePre);
@@ -510,7 +512,7 @@ namespace LT {
 			{
 				if (*(finish_.node_ + i) == nullptr)
 				{
-					*(finish_.node_ + i) = data_alloctor();
+					*(finish_.node_ + i) = __data_alloctor();
 				}
 			}
 		}
@@ -603,16 +605,18 @@ namespace LT {
 		//再是回收一块一块的内存空间。回收的最小单位：node。这个不回收map，只回收某个map节点对应的node
 		inline void __deallocate_mem(map_pointer _first, map_pointer _last) {
 			for (; _first != _last; ++_first) {
-				data_dealloctor(_first);
+				__data_dealloctor(_first);
 				_first = nullptr;
 			}
 		}
 
-		inline void __deallocate_all_mem(map_pointer _first, map_pointer _last) {
-			for (; _first != _last; ++_first) {
-				data_dealloctor(*_first, 1);
+		inline void __deallocate_all_mem() {
+			map_pointer first = map_;
+			map_pointer last = map_ + mapSize_;//存在预分配的情况。所以不能用start，finish标记要析构哪些
+			for (; first != last; ++first) {
+				if(*first != nullptr){ __data_dealloctor(*first, iterator::buffer_size()); }	
 			}
-			map_dealloctor(_first,mapSize_);//这一步会把每一个节点申请的内存空间析构掉。
+			__map_dealloctor(first,mapSize_);//这一步会把每一个节点申请的内存空间析构掉。
 			map_ = nullptr;
 			start_.clear();
 			finish_.clear();
@@ -679,18 +683,18 @@ namespace LT {
 		//---------------------------------------------------------------接口实现--------------------------------------------------------------------------
 		
 		//resize
-	//	inline void __resize(size_type _newSize, const value_type& _value)
-	//	{
-	//		size_type oldSize = size();
-	//		if (_newSize > oldSize)
-	//		{
-	//			erase(start_ + _newSize, finish_);
-	//		}
-	//		else  if(oldSize < _newSize)
-	//		{
-	//			insert(finish_, _newSize - oldSize, _value);
-	//		}
-	//	}
+		inline void __resize(size_type _newSize, const value_type& _value)
+		{
+			size_type oldSize = size();
+			if (_newSize > oldSize)
+			{
+				erase(start_ + _newSize, finish_);
+			}
+			else  if(oldSize < _newSize)
+			{
+				insert(finish_, _newSize - oldSize, _value);
+			}
+		}
 
 		//shrink_to_fit
 		inline void __shrink_to_fit()
@@ -700,7 +704,7 @@ namespace LT {
 
 			for (map_pointer cur = map_; cur < startMap; ++cur)
 			{
-				map_dealloctor(*cur, __deque_iterator::buffer_size());
+				__map_dealloctor(*cur, __deque_iterator::buffer_size());
 				*cur = nullptr;
 			}
 
@@ -708,7 +712,7 @@ namespace LT {
 			{
 				if (*cur)
 				{
-					map_dealloctor(*cur, __deque_iterator::buffer_size());
+					__map_dealloctor(*cur, __deque_iterator::buffer_size());
 					*cur = nullptr;
 				}
 				else {
@@ -717,109 +721,108 @@ namespace LT {
 			}
 		}
 
-	//	//emplace相关
-	//	template<class ...Args>
-	//	inline void __emplace_front(Args&& ..._args)
-	//	{
-	//		if (start_.cur_ == start_.first_) {//说明空间不充足,需要跳跃到下一个node
-	//			__create_new_map_front();
-	//		}
-	//		LT::construct(LT::address_of(--start_.cur_), LT::forward<Args>(_args)...);
-	//	}
+		//emplace相关
+		template<class ...Args>
+		inline void __emplace_front(Args&& ..._args)
+		{
+			if (start_.cur_ == start_.first_) {//说明空间不充足,需要跳跃到下一个node
+				__create_new_map_front();
+			}
+			LT::construct(LT::address_of(--start_.cur_), LT::forward<Args>(_args)...);
+		}
 
-	//	template<class ...Args>
-	//	inline void __emplace_back(Args&& ..._args)
-	//	{
-	//		if (finish_.cur_ == finish_.first_) {//说明空间不充足,需要跳跃到下一个node
-	//			__create_new_map_back();
-	//		}
-	//		LT::construct(LT::address_of(++finish_.cur_), LT::forward<Args>(_args)...);
-	//	}
+		template<class ...Args>
+		inline void __emplace_back(Args&& ..._args)
+		{
+			if (finish_.cur_ == finish_.first_) {//说明空间不充足,需要跳跃到下一个node
+				__create_new_map_back();
+			}
+			LT::construct(LT::address_of(++finish_.cur_), LT::forward<Args>(_args)...);
+		}
 
-	//	template<class ...Args>
-	//	inline iterator __emplace(iterator _pos, Args&&..._args)
-	//	{
-	//		if (_pos == cend())
-	//		{
-	//			emplace_back(LT::forward<Args>(_args)...);
-	//			return begin();
-	//		}
-	//		else if (_pos == cbegin()) {
-	//			emplace_front(LT::forward<Args>(_args)...);
-	//			return end();
-	//		}
-	//		iterator pos = __get_n_mem(_pos, 1);
-	//		LT:construct(LT::address_of(*pos), LT::forward<Args>(_args)...);
-	//		return pos;
-	//	}
+		template<class ...Args>
+		inline iterator __emplace(iterator _pos, Args&&..._args)
+		{
+			if (_pos == cend())
+			{
+				emplace_back(LT::forward<Args>(_args)...);
+				return begin();
+			}
+			else if (_pos == cbegin()) {
+				emplace_front(LT::forward<Args>(_args)...);
+				return end();
+			}
+			iterator pos = __get_n_mem(_pos, 1);
+			LT:construct(LT::address_of(*pos), LT::forward<Args>(_args)...);
+			return pos;
+		}
 
-	//	inline void __insert_n(iterator _pos, size_type _n, const value_type& _value)
-	//	{
-	//		if (_pos == begin())
-	//		{
-	//			while (_n)
-	//			{
-	//				push_front(_value);
-	//				--_n;
-	//			}
-	//		}else if (_pos == end())
-	//		{
-	//			while (_n)
-	//			{
-	//				push_back(_value);
-	//				--_n;
-	//			}
-	//		}
-	//		else
-	//		{
-	//			iterator pos = __get_n_mem(_n);
-	//			LT::uninitialized_fill_n(pos, _n, _value);
-	//		}
-	//	}
+		inline void __insert_n(iterator _pos, size_type _n, const value_type& _value)
+		{
+			if (_pos == begin())
+			{
+				while (_n)
+				{
+					push_front(_value);
+					--_n;
+				}
+			}else if (_pos == end())
+			{
+				while (_n)
+				{
+					push_back(_value);
+					--_n;
+				}
+			}
+			else
+			{
+				iterator pos = __get_n_mem(_n);
+				LT::uninitialized_fill_n(pos, _n, _value);
+			}
+		}
 
-	//	template<class InputIter>
-	//	inline void __insert_by_iter(iterator _pos, InputIter _itBeg, InputIter _itEnd)
-	//	{
-	//		if (_itEnd <= _itBeg) { return; }
-	//		if (_pos == begin())
-	//		{
-	//			for (; _itBeg != _itEnd; ++_itBeg)
-	//			{
-	//				push_front(*_itBeg);
-	//			}
-	//		}
-	//		else if (_pos == end())
-	//		{
-	//			for (; _itBeg != _itEnd; ++_itBeg)
-	//			{
-	//				push_back(*_itBeg);
-	//			}
-	//		}
-	//		else
-	//		{
-	//			size_type n = static_cast<size_type>(LT::distance(_itBeg, _itEnd));
-	//			iterator pos = __get_n_mem(n);
-	//			LT::uninitialized_copy(_itBeg, _itEnd, pos);
-	//		}
-	//	}
+		template<class InputIter>
+		inline void __insert_by_iter(iterator _pos, InputIter _itBeg, InputIter _itEnd)
+		{
+			if (_itEnd <= _itBeg) { return; }
+			if (_pos == begin())
+			{
+				for (; _itBeg != _itEnd; ++_itBeg)
+				{
+					push_front(*_itBeg);
+				}
+			}
+			else if (_pos == end())
+			{
+				for (; _itBeg != _itEnd; ++_itBeg)
+				{
+					push_back(*_itBeg);
+				}
+			}
+			else
+			{
+				size_type n = static_cast<size_type>(LT::distance(_itBeg, _itEnd));
+				iterator pos = __get_n_mem(n);
+				LT::uninitialized_copy(_itBeg, _itEnd, pos);
+			}
+		}
 
-	//
 
-	//	inline iterator __erase(iterator _pos)
-	//	{
-	//		size_type preSize = _pos - begin();
-	//		size_type backSize = _pos - end();
-	//		if (preSize < backSize)
-	//		{
-	//			LT::move(begin(), _pos, begin() - 1);
-	//			pop_front();
-	//		}
-	//		else {
-	//			LT::move_backward(_pos + 1, end(), _pos);
-	//			pop_back();
-	//		}
-	//	}
-	//	
+		inline iterator __erase(iterator _pos)
+		{
+			size_type preSize = _pos - begin();
+			size_type backSize = _pos - end();
+			if (preSize < backSize)
+			{
+				LT::move(begin(), _pos, begin() - 1);
+				pop_front();
+			}
+			else {
+				LT::move_backward(_pos + 1, end(), _pos);
+				pop_back();
+			}
+		}
+	
 		inline iterator __erase(iterator _itBeg, iterator _itEnd)
 		{
 			if (_itBeg == start_ && _itEnd == finish_)
@@ -839,7 +842,7 @@ namespace LT {
 					destroy(start_, newStart);
 					for (map_pointer cur = start_.node_; cur != newStart.node_; ++cur)
 					{
-						data_dealloctor(*cur);
+						__data_dealloctor(*cur);
 						*cur = nullptr;
 					}
 					start_ = newStart;
@@ -850,7 +853,7 @@ namespace LT {
 					destroy(newEnd, finish_);
 					for (map_pointer cur = finish_.node_; cur != newEnd.node_; --cur)
 					{
-						data_dealloctor(*cur);
+						__data_dealloctor(*cur);
 						*cur = nullptr;
 					}
 					finish_ = newEnd;
@@ -913,46 +916,46 @@ namespace LT {
 
 	//------------------------------------------------------外部重载-------------------------------------------------------
 	//swap
-	//template<class T, class Alloc, size_t _BufSize >
-	//void swap(deque<T, Alloc, _BufSize>& _lhs, deque<T, Alloc, _BufSize>& _rhs)
-	//{
-	//	_lhs.swap(_rhs);
-	//}
+	template<class T, class Alloc, size_t _BufSize >
+	void swap(deque<T, Alloc, _BufSize>& _lhs, deque<T, Alloc, _BufSize>& _rhs)
+	{
+		_lhs.swap(_rhs);
+	}
 
-	////比较操作符
-	//template<class T, class Alloc, size_t _BufSize >
-	//bool operator==(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
-	//{
-	//	return _lhs.size() == _rhs.size() && LT::equal(_lhs.cbegin(), _lhs.cend(), _rhs.cbegin());
-	//}
+	//比较操作符
+	template<class T, class Alloc, size_t _BufSize >
+	bool operator==(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
+	{
+		return 0;// _lhs.size() == _rhs.size();// && LT::equal(_lhs.cbegin(), _lhs.cend(), _rhs.cbegin());
+	}
 
-	//template<class T, class Alloc, size_t _BufSize >
-	//bool operator<(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
-	//{
-	//	return LT::lexicographical_compare(_lhs.begin(), _lhs.end(), _rhs.begin(), _rhs.end());
-	//}
+	template<class T, class Alloc, size_t _BufSize >
+	bool operator<(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
+	{
+		return LT::lexicographical_compare(_lhs.begin(), _lhs.end(), _rhs.begin(), _rhs.end());
+	}
 
-	//template<class T, class Alloc, size_t _BufSize >
-	//bool operator!=(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
-	//{
-	//	return !(_lhs == _rhs);
-	//}
+	template<class T, class Alloc, size_t _BufSize >
+	bool operator!=(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
 
-	//template<class T, class Alloc, size_t _BufSize >
-	//bool operator>(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
-	//{
-	//	return _rhs < _lhs;
-	//}
+	template<class T, class Alloc, size_t _BufSize >
+	bool operator>(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
+	{
+		return _rhs < _lhs;
+	}
 
-	//template<class T, class Alloc, size_t _BufSize >
-	//bool operator<=(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
-	//{
-	//	return !(_rhs < _lhs);
-	//}
+	template<class T, class Alloc, size_t _BufSize >
+	bool operator<=(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
+	{
+		return !(_rhs < _lhs);
+	}
 
-	//template<class T, class Alloc, size_t _BufSize >
-	//bool operator>=(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
-	//{
-	//	return !(_lhs < _rhs);
-	//}
+	template<class T, class Alloc, size_t _BufSize >
+	bool operator>=(const deque<T, Alloc, _BufSize>& _lhs, const deque<T, Alloc, _BufSize>& _rhs)
+	{
+		return !(_lhs < _rhs);
+	}
 }

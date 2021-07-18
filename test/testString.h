@@ -58,8 +58,9 @@ namespace LT
 				FUN_VALUE(str.length());
 				FUN_VALUE(str.capacity());
 				FUN_VALUE(str.max_size());
-				STR_FUN_AFTER(str, str.shrink_to_fit());
+				//STR_FUN_AFTER(str, str.shrink_to_fit());
 				FUN_VALUE(str.capacity());
+
 
 				STR_FUN_AFTER(str, str.insert(str.begin(), 'a'));
 				STR_FUN_AFTER(str, str.insert(str.end(), 3, 'x'));
@@ -94,20 +95,20 @@ namespace LT
 				FUN_VALUE(str.compare(0, 3, "stri", 4));
 				FUN_VALUE(str.compare(0, 3, "s", 3));
 				FUN_VALUE(str.compare(0, 9, "stringabc", 9));
-				FUN_VALUE(str.substr(0));
-				FUN_VALUE(str.substr(3));
-				FUN_VALUE(str.substr(0, 3));
-				FUN_VALUE(str.substr(0, 10));
-				STR_FUN_AFTER(str, str.replace(0, 6, str3));
-				STR_FUN_AFTER(str, str.replace(str.end() - 1, str.end(), str3));
-				STR_FUN_AFTER(str, str.replace(0, 1, "my "));
-				STR_FUN_AFTER(str, str.replace(str.end() - 8, str.end(), " test"));
-				STR_FUN_AFTER(str, str.replace(10, 4, "replace"));
-				STR_FUN_AFTER(str, str.replace(str.end(), str.end(), " test"));
-				STR_FUN_AFTER(str, str.replace(0, 2, 3, '6'));
-				STR_FUN_AFTER(str, str.replace(str.begin(), str.begin() + 3, 6, '6'));
-				STR_FUN_AFTER(str, str.replace(0, 3, str3, 1, 3));
-				STR_FUN_AFTER(str, str.replace(str.begin(), str.begin() + 6, s, s + 3));
+				/*FUN_VALUE(str.substr(0));*/
+				/*FUN_VALUE(str.substr(3));*/
+				/*FUN_VALUE(str.substr(0, 3));
+				FUN_VALUE(str.substr(0, 10));*/
+				//STR_FUN_AFTER(str, str.replace(0, 6, str3));
+				//STR_FUN_AFTER(str, str.replace(str.end() - 1, str.end(), str3));
+				//STR_FUN_AFTER(str, str.replace(0, 1, "my "));
+				//STR_FUN_AFTER(str, str.replace(str.end() - 8, str.end(), " test"));
+				///*STR_FUN_AFTER(str, str.replace(10, 4, "replace"));*/
+				//STR_FUN_AFTER(str, str.replace(str.end(), str.end(), " test"));
+				//STR_FUN_AFTER(str, str.replace(0, 2, 3, '6'));
+				//STR_FUN_AFTER(str, str.replace(str.begin(), str.begin() + 3, 6, '6'));
+				//STR_FUN_AFTER(str, str.replace(0, 3, str3, 1, 3));
+				//STR_FUN_AFTER(str, str.replace(str.begin(), str.begin() + 6, s, s + 3));
 				STR_FUN_AFTER(str, str.reverse());
 				STR_FUN_AFTER(str, str.reverse());
 
@@ -143,14 +144,14 @@ namespace LT
 				FUN_VALUE(str.find_first_not_of("ggggg", 14, 4));
 				FUN_VALUE(str.find_first_not_of(str3));
 				FUN_VALUE(str.find_first_not_of(str3, 3));
-				FUN_VALUE(str.find_last_of('a'));
+				/*FUN_VALUE(str.find_last_of('a'));
 				FUN_VALUE(str.find_last_of('a', 4));
 				FUN_VALUE(str.find_last_of('g'));
 				FUN_VALUE(str.find_last_of("gg"));
 				FUN_VALUE(str.find_last_of("gg", 14));
 				FUN_VALUE(str.find_last_of("ggg", 14, 1));
 				FUN_VALUE(str.find_last_of(str3));
-				FUN_VALUE(str.find_last_of(str3, 3));
+				FUN_VALUE(str.find_last_of(str3, 3));*/
 				FUN_VALUE(str.find_last_not_of('g'));
 				FUN_VALUE(str.find_last_not_of('a'));
 				FUN_VALUE(str.find_last_not_of('a', 1));

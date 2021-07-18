@@ -23,19 +23,19 @@ namespace LT
 				std::cout << "[-------------------------- API test ---------------------------]" << std::endl;
 				int a[] = { 1,2,3,4,5 };
 				LT::deque<int> d1;
-				LT::deque<int> d2(5);
-				LT::deque<int> d3(5, 1);
-				LT::deque<int> d4(a, a + 5);
-				LT::deque<int> d5(d2);
-				LT::deque<int> d6(std::move(d2));
+				//LT::deque<int> d2(5);
+				//LT::deque<int> d3(5, 1);
+				//LT::deque<int> d4(a, a + 5);
+				//LT::deque<int> d5(d2);
+				//LT::deque<int> d6(std::move(d2));
 				//LT::deque<int> d7;
 				//d7 = d3;
-//				LT::deque<int> d8;
-//				d8 = std::move(d3);
-//				LT::deque<int> d9{ 1,2,3,4,5,6,7,8,9 };
-//				LT::deque<int> d10;
-//				d10 = { 1,2,3,4,5,6,7,8,9 };
-//
+				//LT::deque<int> d8;
+				//d8 = std::move(d3);
+				//LT::deque<int> d9{ 1,2,3,4,5,6,7,8,9 };
+				//LT::deque<int> d10;
+				//d10 = { 1,2,3,4,5,6,7,8,9 };
+
 //				FUN_AFTER(d1, d1.assign(5, 1));
 //				FUN_AFTER(d1, d1.assign(8, 8));
 //				FUN_AFTER(d1, d1.assign(a, a + 5));

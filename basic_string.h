@@ -351,42 +351,48 @@ namespace LT {
             __init_iter(_itBeg, _itEnd);
         }
 
-        basic_string(const basic_string& __rhs)
+        basic_string(const basic_string& _rhs)
             :strPtr_(nullptr), size_(0), capacity_(0)
         {
-            __init_ptr(__rhs.strPtr_);
+            __init_ptr(_rhs.strPtr_, 0);
         }
-        basic_string(basic_string&& __rhs)
-            :strPtr_(__rhs.strPtr_), size_(__rhs.size_), capacity_(__rhs.capacity_)
+        basic_string(basic_string&& _rhs)
+            :strPtr_(_rhs.strPtr_), size_(_rhs.size_), capacity_(_rhs.capacity_)
         {
-            __rhs.strPtr_ = nullptr;
-            __rhs.size_ = 0;
-            __rhs.capacity_ = 0;
+            _rhs.strPtr_ = nullptr;
+            _rhs.size_ = 0;
+            _rhs.capacity_ = 0;
         }
 
-        basic_string& operator=(const basic_string& __rhs)
+        basic_string& operator=(const basic_string& _rhs)
         {
-            __init_ptr(__rhs.strPtr_);
+            if (*this != _rhs)
+            {
+                __init_ptr(_rhs.strPtr_, 0);
+            }     
+            return *this;
         }
-        basic_string& operator=(basic_string&& __rhs)
+        basic_string& operator=(basic_string&& _rhs)
         {
-            strPtr_ = __rhs.strPtr_;
-            size_ = __rhs.size_;
-            capacity_ = __rhs.capacity_;
-            __rhs.strPtr_ = nullptr;
-            __rhs.capacity_ = 0;
-            __rhs.size_ = 0;
+            strPtr_ = _rhs.strPtr_;
+            size_ = _rhs.size_;
+            capacity_ = _rhs.capacity_;
+            _rhs.strPtr_ = nullptr;
+            _rhs.capacity_ = 0;
+            _rhs.size_ = 0;
 
             return *this;
         }
 
         basic_string& operator=(const_pointer _strPtr)
         {
-            __init_ptr(_strPtr);
+            __init_ptr(_strPtr, 0);
+            return *this;
         }
         basic_string& operator=(const value_type _ch)
         {
             __init_value(1,_ch);
+            return *this;
         }
 
         ~basic_string()
@@ -424,18 +430,25 @@ namespace LT {
         {
             if(_n > capacity_)
             {
-                pointer newPtr = __deallocate_one_str(_n);
-                __assign(newPtr, strPtr_, size_);
+                pointer newPtr = __allocate_one_str(_n);
+                __assign_copy(newPtr, strPtr_, size_);
                 LT::swap(newPtr, strPtr_);
-                __deallocate_one_str(newPtr);
+                __deallocate_one_str(newPtr, size_);
             }
         }
         void shrink_to_fit() 
         {
-            pointer oldStr = nullptr;
-            LT::swap(oldStr, strPtr_);
-            __init_ptr(oldStr, 0, size_);
-            __deallocate_one_str(oldStr, capacity_);
+            if (size_)
+            {
+                pointer newMem = __allocate_one_str(size_);
+                __assign_copy(newMem, strPtr_, size_);
+                __deallocate_one_str(strPtr_, capacity_);
+                strPtr_ = newMem;
+            }
+            else
+            {
+                __deallocate_one_str(strPtr_, capacity_);
+            }
             capacity_ = size_;
         }
 
@@ -486,7 +499,7 @@ namespace LT {
         }
         basic_string& append(const basic_string& _str)
         {
-            __append(_str.strPtr_, _str.strPtr_.size_);
+            __append(_str.strPtr_, _str.size_);
             return *this;
         }
         basic_string& append(const basic_string& _str, size_type _subpos)
@@ -519,22 +532,6 @@ namespace LT {
         basic_string& append(InputIter _itBeg, InputIter _itEnd)
         {
             __append(_itBeg, LT::distance(_itBeg, _itEnd));
-            return *this;
-        }
-
-        basic_string& operator+= (const basic_string& _str)
-        {
-            __append(_str.strPtr_, _str.strPtr_.size_);
-            return *this;
-        }
-        basic_string& operator+= (const_pointer _ptr)
-        {
-            __append(_ptr, char_traits::length(_ptr));
-            return *this;
-        }
-        basic_string& operator+= (value_type _value)
-        {
-            __append(1, _value);
             return *this;
         }
 
@@ -580,11 +577,11 @@ namespace LT {
         }
         basic_string& replace(size_type _pos, size_type _len, const basic_string& _str, size_type _subPos, size_type _sublen = npos)
         {
-            return __replace_by_str(_pos, _len, _str.strPtr_ + _subPos, _sublen);
+            return __replace_by_str(strPtr_ + _pos, _len, _str.strPtr_ + _subPos, _sublen);
         }
         basic_string& replace(size_type _pos, size_type _len, const_pointer _ptr)
         {
-            return __replace_by_str(_pos, _len, _ptr, char_traits::length(_ptr));
+            return __replace_by_str(strPtr_ + _pos, _len, _ptr, char_traits::length(_ptr));
         }
         basic_string& replace(iterator _startPos, iterator _endPos, const_pointer _ptr)
         {
@@ -604,12 +601,12 @@ namespace LT {
         }
         basic_string& replace(iterator _startPos, iterator _endPos, size_type _n, value_type _value)
         {
-            __replace_by_n(strPtr_ + _startPos, static_cast<size_type>(_endPos - _startPos), _value, _n);
+            return __replace_by_n(_startPos, static_cast<size_type>(_endPos - _startPos), _value, _n);
         }
         template <class InputIter>
         basic_string& replace(iterator _startPos, iterator _endPos, InputIter _itBeg, InputIter _itEnd)
         {
-            __replace_by_iter(_startPos, static_cast<size_type>(_endPos - _startPos), _itBeg, _itEnd);
+            return __replace_by_iter(_startPos, static_cast<size_type>(_endPos - _startPos), _itBeg, _itEnd);
         }
 
         void swap(basic_string& _str) {
@@ -635,28 +632,28 @@ namespace LT {
         }
         size_type find(const basic_string& _str, size_type _pos = 0) const
         {
-            const size_type _strLen = _str.size_;
-            if (_strLen == 0)
+            const size_type strLen = _str.size_;
+            if (strLen == 0)
             {
                 return _pos;
             }
-            if (_pos + _strLen > size_)
+            if (_pos + strLen > size_)
             {
                 return npos;
             }
-            for (size_type i = _pos; i < size_ - _strLen; ++i)
+            for (size_type i = _pos; i < size_ - strLen; ++i)
             {
-                if (*(i + strPtr_) = *(_str))
+                if (*(i + strPtr_) = _str[i])
                 {
                     size_type j = 1;
-                    for (; j < _strLen; ++j)
+                    for (; j < strLen; ++j)
                     {
-                        if (*(strPtr_ + i + j) != *(_str + j))
+                        if (*(strPtr_ + i + j) != _str[j])
                         {
                             break;
                         }
                     }
-                    if (j == _strLen)
+                    if (j == strLen)
                     {
                         return i;
                     }
@@ -902,8 +899,9 @@ namespace LT {
         }
 
         basic_string substr(size_type _pos = 0, size_type _len = npos) const {
+            if (size_ == 0) { return basic_string(); }
             _pos = min(size_ - 1, _pos);
-            _len = min(_len, size_ - _pos + 1);
+            _len = min(_len, size_ - _pos);
             return basic_string(begin() + _pos, begin() + _pos + _len);
         }
 
@@ -961,17 +959,20 @@ namespace LT {
         
         //操作符重载
         // 重载 operator+= 
-        basic_string& operator+=(const basic_string& _rhs)
+        basic_string& operator+= (const basic_string& _str)
         {
-            return append(_rhs);
+            __append(_str.strPtr_, _str.size_);
+            return *this;
         }
-        basic_string& operator+=(value_type _ch)
+        basic_string& operator+= (const_pointer _ptr)
         {
-            return append(1, _ch);
+            __append(_ptr, char_traits::length(_ptr));
+            return *this;
         }
-        basic_string& operator+=(const_pointer _ptr)
+        basic_string& operator+= (value_type _value)
         {
-            return append(_ptr, _ptr + char_traits::length(_ptr));
+            __append(1, _value);
+            return *this;
         }
 
         // 重载 operator >> / operatror <<
@@ -1050,14 +1051,17 @@ namespace LT {
        inline void __assign_move<const_pointer>(pointer _writePtr, const_pointer _itBeg, size_type _n) {
            char_traits::move(_writePtr, _itBeg, _n);
        }
+       template<>//特化
+       inline void __assign_move<pointer>(pointer _writePtr, pointer _itBeg, size_type _n) {
+           char_traits::move(_writePtr, _itBeg, _n);
+       }
 
-       //调用该函数要保证不发生内存区域重叠
        template<class InputIter>
        inline void __assign_copy(pointer _writePtr, InputIter _itBeg, size_type _n) {
            //可能指向是同一个内存
            auto addr = LT::address_of(*_itBeg);
            if (_writePtr < addr) {
-               for (; _n; ++_writePtr, ++_itBeg) {
+               for (; _n; ++_writePtr, ++_itBeg, --_n) {
                    *_writePtr = *_itBeg;
                }
            }
@@ -1074,30 +1078,51 @@ namespace LT {
            char_traits::copy(_writePtr, _itBeg, _n);
        }
 
+       template<>//特化
+       inline void __assign_copy<pointer>(pointer _writePtr, pointer _itBeg, size_type _n) {
+           char_traits::copy(_writePtr, _itBeg, _n);
+       }
+
        //扩展内存，该函数会自己判断是否需要扩容，如果需要扩容，那么会自动扩容到需要的大小,并拷贝原有区域
        void __expand_capacity(size_type _newSize)
        {
            //注意这里是有整数溢出风险的，但是，几乎不可能出现，所以为了性能，不添加是否溢出的检查
            size_type needSize = _newSize;
            size_type newCap = capacity_;
-           while (newCap < needSize) {
-               newCap *= EXPAN_RATIO;//这里面1.5是扩容系数，如果需要人工改变的话，需要提供接口
+           if(!newCap && _newSize)
+           {
+               //空字符扩容策略
+               newCap = _newSize;
            }
+           else
+           {
+               while (newCap < needSize) {
+                   //这里面1.5是扩容系数，如果需要人工改变的话，需要提供接口
+                   newCap = max(static_cast<size_type>(newCap * EXPAN_RATIO), newCap + 2);
+                   
+               }
+           }
+           
            if (newCap > capacity_)//用大于而不是等于进行判断一定程度可以防止整型溢出，但是很有限
            {
                pointer newPtr = __allocate_one_str(newCap);//由分配函数保证不为空指针
-               if (size_)
+               if (size_ && strPtr_)
                {
                    __assign_copy(newPtr, strPtr_, size_);//如果原来不是空string
+                   if(strPtr_){
+                       __deallocate_one_str(strPtr_, capacity_);
+                   }
+                   
                }
                LT::swap(newPtr, strPtr_);
                LT::swap(capacity_, newCap);
-               __deallocate_one_str(newPtr,newCap);
-           }  
+           }
+          
        }
 
        //调用此函数的前提是，原有size >= _preSize
        //该函数会自动进行扩容，并且无论是否扩容，都会在第_preSize个位置(0开始计数)开始，留出_midn个空白位置。
+       //@parm subSize:覆盖掉多少字符
        void __expand_capacity_midn(size_type _newSize, size_type _preSize, size_type _subSize, size_type _midn)
        {
            assert(_preSize + _subSize <= size_);
@@ -1117,8 +1142,7 @@ namespace LT {
                }
                LT::swap(newPtr, strPtr_);
                LT::swap(capacity_, newCap);
-               __deallocate_one_str(newPtr, newCap);
-              
+               __deallocate_one_str(newPtr, newCap);    
            }
            else {
                //无需扩容
@@ -1168,11 +1192,11 @@ namespace LT {
        }
 
        //用传入的指针进行初始化
-       void __init_ptr(const_pointer _ptr, size_type _pos) {
+       void __init_ptr(const_pointer _ptr, size_type _pos = 0) {
            try {
                size_type newSize = static_cast<size_type>(char_traits::length(_ptr + _pos));
                __expand_capacity(newSize);
-               __assign_cpy(strPtr_, _ptr + _pos, newSize);
+               __assign_copy(strPtr_, _ptr + _pos, newSize);
                size_ = newSize;
                __set_tail_zero(newSize);
            }
@@ -1188,7 +1212,7 @@ namespace LT {
                size_type len = static_cast<size_type>(char_traits::length(_ptr + _pos));
                size_type newSize = min(len, _n);
                __expand_capacity(newSize);
-               __assign_cpy(strPtr_, _ptr + _pos, newSize);
+               __assign_copy(strPtr_, _ptr + _pos, newSize);
                size_ = newSize;
                __set_tail_zero(newSize);
            }
@@ -1204,7 +1228,7 @@ namespace LT {
            try {
                size_type newSize = static_cast<size_type>(LT::distance(_itBeg, _itEnd));
                __expand_capacity(newSize);
-               __assign_cpy(strPtr_, _itBeg, newSize);
+               __assign_copy(strPtr_, _itBeg, newSize);
                size_ = newSize;
                __set_tail_zero(size_);
            }
@@ -1232,29 +1256,29 @@ namespace LT {
         //insert:在指定位置插入n个元素
         iterator __insert(const_iterator _pos, size_type _n, value_type _value)
         {
-            iterator end = end();
-            iterator pos = static_cast<iterator>(_pos);
-
-            if (end == pos) {
+            iterator endIt = end();
+            if (endIt == _pos) {
                 iterator ret = strPtr_ + size_;
                 __append(_n, _value);
+                size_ += _n;
                 return ret;
             }
             else {
                 //可以直接减的，因为确定是连续内存
                 size_type preSize = static_cast<size_type>(_pos - strPtr_);
-                __expand_capacity_midn(_n + size_,preSize, _n);
+                __expand_capacity_midn(_n + size_,preSize, 0, _n);
                 __assign(strPtr_ + preSize, _n, _value);
+                size_ += _n;
                 return strPtr_ + preSize;
             }
         }
 
         iterator __insert(const_iterator _pos, const_iterator _readPtr, size_type _n)
         {
-            iterator end = end();
-            iterator pos = static_cast<iterator> (_pos);
+            iterator endIt = end();
+            iterator pos = const_cast<iterator> (_pos);
 
-            if (end == pos) {
+            if (endIt == pos) {
                 iterator ret = strPtr_ + size_;
                 __append(_readPtr, _n);
                 return ret;
@@ -1262,11 +1286,12 @@ namespace LT {
             else {
                 //可以直接减的，因为确定是连续内存
                 size_type preSize = static_cast<size_type>(_pos - strPtr_);
-                __expand_capacity_midn(_n + size_, preSize, _n);
-                __assign_cpy(strPtr_ + preSize, _readPtr, _n);
+                __expand_capacity_midn(_n + size_, preSize, 0, _n);
+                __assign_copy(strPtr_ + preSize, _readPtr, _n);
                 iterator ret = strPtr_ + preSize;
                 return ret;
             }
+            size_ += _n;
         }
 
         //append:在末尾追加n个元素
@@ -1276,19 +1301,16 @@ namespace LT {
             __assign(end(), _n, _value);
             iterator ret = strPtr_ + size_;
             size_ += _n;
-            __set_tail_zero(size_);
-            return ret;
+            __set_tail_zero(size_);         
         }
 
         //append:在末尾追加一个长度为n的字符串
         void __append(const_iterator _writePtr, size_type _n)
         {
             __expand_capacity(_n + size_);
-            __assign(strPtr_ + size_, _writePtr, _n);
-            iterator ret = strPtr_ + size_;
+            __assign_copy(strPtr_ + size_, _writePtr, _n);       
             size_ += _n;
-            __set_tail_zero(size_);
-            return ret;
+            __set_tail_zero(size_);     
         }
 
         //replace: 用新的字符替代原有字符
