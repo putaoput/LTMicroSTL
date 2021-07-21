@@ -3,6 +3,7 @@
 #include "test/testList.h"
 #include "test/testDeque.h"
 #include "test/testString.h"
+#include "test/testAlgo.h"
 
 #include "stl_algo.h"
 #include <string>
@@ -16,6 +17,7 @@ using namespace std;
 
 int main()
 {
+	LT::test::algorithm_test::sort_test();
 	LT::test::vector_test::vector_test();
 	LT::test::list_test::list_test();
 	//LT::test::deque_test::deque_test();

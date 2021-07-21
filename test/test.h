@@ -695,7 +695,7 @@ void test_len(size_t len1, size_t len2, size_t len3, size_t wide)
   LIST_SORT_DO_TEST(LT, len3);
 
 // 简单测试的宏定义
-#define TEST(testcase_name) \
+#define __TEST(testcase_name) \
   MYTINYSTL_TEST_(testcase_name)
 
 // 运行所有测试案例

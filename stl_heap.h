@@ -33,7 +33,7 @@ namespace LT {
 	template<class RandomIterator, class Distance, class T, class Comp>
 	inline void __push_heap(RandomIterator _itBegin, Distance _holeIndex, Distance _topIndex, T _value, Comp _cmp) {
 		//该函数是实际执行push_heap堆调整的函数
-		Distance parent = (_holeIndex - 1) / 2; //holeIndex是压入的元素，找出该元素的父节点，然进行调整。
+		Distance parent = (_holeIndex - 1) / 2; //holeIndex是压入的元素，找出该元素的父节点，然后进行调整。
 		while (_holeIndex < _topIndex && _cmp(*(_itBegin + parent), _value))//说明需要调整，不满足_cmp(child,parent) == true;
 		{
 			*(_itBegin + _holeIndex) = *(_itBegin + parent);
