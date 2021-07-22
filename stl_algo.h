@@ -83,21 +83,24 @@ namespace LT {
     void __quick_sort(RandomAcessIterator _first, RandomAcessIterator _last, Comp _cmp, int _n, int _max) {
         int len = _last - _first;
         if (len <= 1) { return; }
-        if (len <= 2) { return __insert_sort(_first, _last, _cmp); }
+        if (len <= 16) { return __insert_sort(_first, _last, _cmp); }
         if (_n >= _max) { return __heap_sort(_first, _last, _cmp); }
       
         auto left = _first;
-        auto right = _last - 2;
+        auto right = _last - 1;
         auto pivot = *LT::__mid3(_first, _last, _cmp);
-        while (true) {
-            while (++left < right && _cmp(*left, pivot)) {}
-            while (--right > left && _cmp(pivot, *right)) {}
-            if (left < right) {
-                iter_swap(left, right);
-            }
-            else {
+        ++left;
+        --right;
+        while (true)
+        {
+            while (_cmp(*left, pivot)){++left;}
+            while (_cmp(pivot, *right)) { --right; }
+            if (!(left < right))
+            {
                 break;
             }
+            LT::iter_swap(left, right);
+            ++left;
         }
         __quick_sort(_first, left, _cmp, _n + 1, _max);
         __quick_sort(left, _last, _cmp, _n + 1, _max);
