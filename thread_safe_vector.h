@@ -103,6 +103,7 @@ namespace LT {
             //获取不成功就轮询
             while (node.nodeType_ != readable_vector_node)
             {
+                if (node_type == writable_vector_node) { std::atomic_exchange(start_ + idx, node); }
                 idx = front_++;
                 idx %= LENGTH;
                 //front_ = front_ % LENGTH;//这里不处理坐等front溢出然后回到0，变成一个循环，减少了一步运算和一个临界区代码,解决了一个难题                
@@ -130,7 +131,8 @@ namespace LT {
             node_type node(forbbiden_vector_node);
             //获取不成功就轮询
             while (node.nodeType_ != readable_vector_node)
-            {            
+            {   
+                if (node_type == writable_vector_node) { std::atomic_exchange(start_ + idx, node); }
                 idx = front_++;
                 idx %= LENGTH;
                 //front_ = front_ % LENGTH;//这里不处理坐等front溢出然后回到0，变成一个循环，减少了一步运算和一个临界区代码,解决了一个难题               
@@ -160,6 +162,7 @@ namespace LT {
             //获取不成功就轮询
             while (node.nodeType_ != writable_vector_node)
             {
+                if (node_type == readable_vector_node) { std::atomic_exchange(start_ + idx, node); }
                 idx = back_++;
                 idx %= LENGTH;//以防万一
                 //back_ = back_ % LENGTH;//这里不处理坐等back溢出然后回到0，变成一个循环，减少了一步运算和一个临界区代码
@@ -187,6 +190,7 @@ namespace LT {
             //获取不成功就轮询
             while (node.nodeType_ != writable_vector_node)
             {
+                if (node_type == readable_vector_node) { std::atomic_exchange(start_ + idx, node); }
                 idx = back_++;
                 idx %= LENGTH;//以防万一
                 //back_ = back_ % LENGTH;//这里不处理坐等back溢出然后回到0，变成一个循环，减少了一步运算和一个临界区代码
@@ -211,6 +215,7 @@ namespace LT {
             //获取不成功就轮询
             while (node.nodeType_ != writable_vector_node)
             {
+                if (node_type == readable_vector_node) { std::atomic_exchange(start_ + idx, node); }
                 idx = back_++;
                 idx %= LENGTH;//以防万一
                 //back_ = back_ % LENGTH;//这里不处理坐等back溢出然后回到0，变成一个循环，减少了一步运算和一个临界区代码
@@ -238,7 +243,8 @@ namespace LT {
             node_type node(forbbiden_vector_node, _value);
             //获取不成功就轮询
             while (node.nodeType_ != writable_vector_node)
-            {              
+            {   
+                if (node_type == readable_vector_node) { std::atomic_exchange(start_ + idx, node); }
                 idx = back_++;
                 idx %= LENGTH;//以防万一
                 //back_ = back_ % LENGTH;//这里不处理坐等back溢出然后回到0，变成一个循环，减少了一步运算和一个临界区代码
