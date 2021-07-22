@@ -332,7 +332,7 @@ namespace LT {
 	
 	template <class T, class U, bool = is_iter_cat<iterator_traits<T>>::value>
 	struct is_iter_cat_of
-		:public LT::bool_constant<
+		:public LT::bool_constant<  //true_type，false_type定义
 		std::is_convertible<typename iterator_traits<T>::iterator_category, U>::value //用来指示是否可以进行类型转换
 		>
 	{

@@ -12,9 +12,7 @@
 #include <iostream>
 
 
-
 using namespace std;
-
 int main()
 {
 	LT::test::algorithm_test::sort_test();

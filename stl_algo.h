@@ -21,6 +21,7 @@ namespace LT {
    //插入排序，冒泡是稳定排序，不需要额外空间，是原地排序最好为O(n),最坏为O(n2),平均为O(n2)。
    //选择排序是从未排序区间选择最小的放入排序区间末尾，时间复杂度最好，最坏，平均均为O(n2)
    //但是在核心代码上，插入排序只要一个赋值(移动)，但是冒泡排序需要三个（交换）
+
     template<class RandomIterator, class Comp>
     void __insert_sort(RandomIterator _first, RandomIterator _last, Comp _cmp) {
         for (auto it = _first + 1; it != _last; ++it) {
@@ -30,12 +31,12 @@ namespace LT {
             {
                 if (_cmp(tmp, *(--j)) == false) // 保证插入排序稳定
                 {
+                    ++j;
                     break;
                 }
             }
             //把未排序的代码插入到已排序代码之中
             //要吧[j,it)的元素移动到(j,it],然后*j = tmp;
-            --j;
             for (auto idx = it; idx != j; --idx)
             {
                 *idx = *(idx - 1);
@@ -46,18 +47,18 @@ namespace LT {
 
     //②快排
     //三数中值分割
-    template<class RandomAcessIterator>
-    RandomAcessIterator __mid3(RandomAcessIterator _first, RandomAcessIterator _last) {
+    template<class RandomAcessIterator, class Comp>
+    RandomAcessIterator __mid3(RandomAcessIterator _first, RandomAcessIterator _last, Comp _cmp) {
         auto mid = (_last - _first) / 2 + _first;
         auto last = _last - 1;
-        if (*_first > * mid) {
+        if (_cmp(*mid, *_first)) {
             LT::iter_swap(_first, mid);
         }
-        if (*mid > * _last) {
+        if (_cmp(*last, * mid)) {
             LT::iter_swap(last, mid);
         }
 
-        if (*mid < *_first) {
+        if (_cmp(*mid, * _first)) {
             LT::iter_swap(_first, mid);
         }
 
@@ -82,16 +83,16 @@ namespace LT {
     void __quick_sort(RandomAcessIterator _first, RandomAcessIterator _last, Comp _cmp, int _n, int _max) {
         int len = _last - _first;
         if (len <= 1) { return; }
-        if (len <= 16) { return __insert_sort(_first, _last, _cmp); }
+        if (len <= 2) { return __insert_sort(_first, _last, _cmp); }
         if (_n >= _max) { return __heap_sort(_first, _last, _cmp); }
-
+      
         auto left = _first;
-        auto right = _last - 1;
-        auto pivot = __mid3(_first, _last);
+        auto right = _last - 2;
+        auto pivot = *LT::__mid3(_first, _last, _cmp);
         while (true) {
-            while (++left < right && _cmp(*left, *pivot)) {}
-            while (--right < left && _cmp(*pivot, *right)) {}
-            if (right - left >= 1) {
+            while (++left < right && _cmp(*left, pivot)) {}
+            while (--right > left && _cmp(pivot, *right)) {}
+            if (left < right) {
                 iter_swap(left, right);
             }
             else {
@@ -99,7 +100,7 @@ namespace LT {
             }
         }
         __quick_sort(_first, left, _cmp, _n + 1, _max);
-        __quick_sort(left + 1, _last, _cmp, _n + 1, _max);
+        __quick_sort(left, _last, _cmp, _n + 1, _max);
     }
 
 
