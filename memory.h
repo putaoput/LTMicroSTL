@@ -2,7 +2,7 @@
 //@Email: putaopu@qq.com
 
 #pragma once
-//¸ÃÍ·ÎÄ¼ş¸ºÔğ¶¯Ì¬¿Õ¼äÅäÖÃ
+//è¯¥å¤´æ–‡ä»¶è´Ÿè´£åŠ¨æ€ç©ºé—´é…ç½®
 
 //@Author: Lin Tao
 //@Email: putaopu@qq.com
@@ -11,12 +11,12 @@
 #include<atomic>
 #include "construct.h"
 #include "allocator.h"
-//¸ÃÍ·ÎÄ¼ş¸ºÔğÌá¹©ÈıÖÖÖÇÄÜÖ¸ÕëµÄÊµÏÖ£¬shared_ptr, weak_ptr£¬unique_ptr£¬(auto_ptrÒÑ¾­±»Å×Æú)
-//Ìá¹©Ò»Ğ©ÄÚ´æ´¦Àíº¯Êı£ºaddress_of
+//è¯¥å¤´æ–‡ä»¶è´Ÿè´£æä¾›ä¸‰ç§æ™ºèƒ½æŒ‡é’ˆçš„å®ç°ï¼Œshared_ptr, weak_ptrï¼Œunique_ptrï¼Œ(auto_ptrå·²ç»è¢«æŠ›å¼ƒ)
+//æä¾›ä¸€äº›å†…å­˜å¤„ç†å‡½æ•°ï¼šaddress_of
 
 
 namespace LT {
-	//Ìá¹©address_of
+	//æä¾›address_of
 	template<class T>
 	T* address_of(T& _value) {
 		return &_value;
@@ -39,7 +39,7 @@ namespace LT {
 			_ptr->~T();
 		}
 	};
-	//Ç°ÖÃÉùÃ÷
+	//å‰ç½®å£°æ˜
 	template<class T, class Deleter = DefaultDeleter()>
 	class weak_ptr;
 
@@ -47,7 +47,7 @@ namespace LT {
 	template<class T, class Deleter = DefaultDeleter>
 	class shared_ptr_impl {
 	public:
-		//¶¨ÒåÒ»Ğ©ÀàĞÍ
+		//å®šä¹‰ä¸€äº›ç±»å‹
 		typedef T					value_type;
 		typedef	value_type*         pointer;
 		typedef value_type&			reference;
@@ -69,7 +69,7 @@ namespace LT {
 			deleter_()(ptr_);
 		}
 
-		//²Ù×÷·ûÖØÔØ
+		//æ“ä½œç¬¦é‡è½½
 		pointer operator->()const
 		{
 			return ptr_;
@@ -80,7 +80,7 @@ namespace LT {
 			return *ptr_;
 		}
 
-		//¶ÔÍâ½Ó¿Ú
+		//å¯¹å¤–æ¥å£
 		pointer get()const
 		{
 			return ptr_;
@@ -106,23 +106,23 @@ namespace LT {
 	
 	template<class T, class Deleter = DefaultDeleter>
 	class shared_ptr {
-		//ÓÑÔª
+		//å‹å…ƒ
 		friend class  weak_ptr<T, DefaultDeleter>;
 	public:
-		//¶¨ÒåÒ»Ğ©ÀàĞÍ
+		//å®šä¹‰ä¸€äº›ç±»å‹
 		typedef typename shared_ptr_impl<T,Deleter>::value_type					value_type;
 		typedef	typename shared_ptr_impl<T, Deleter>::pointer					pointer;
 		typedef typename shared_ptr_impl<T, Deleter>::reference					reference;
 		typedef typename shared_ptr_impl<T, Deleter>::size_type					size_type;
 
-		//¹¹Ôìº¯Êı
+		//æ„é€ å‡½æ•°
 		constexpr shared_ptr() = default;
 
 		explicit shared_ptr(shared_ptr_impl<T,Deleter>* _sPtr):sPtr_(_sPtr){}
 		
 		explicit shared_ptr(pointer _ptr = nullptr, Deleter _del = Deleter()):sPtr_(new shared_ptr_impl(_ptr, _del)){}
 		
-		template <class U>//ÎªÁËÏŞ¶¨Ö»ÄÜ´«µİÖ¸Õë
+		template <class U>//ä¸ºäº†é™å®šåªèƒ½ä¼ é€’æŒ‡é’ˆ
 		explicit shared_ptr(U* _ptr = nullptr, Deleter _del = Deleter()) :sPtr_(new shared_ptr_impl(_ptr, _del)) {}
 
 		shared_ptr(const shared_ptr& _rhs)
@@ -161,8 +161,8 @@ namespace LT {
 			return *this;
 		}
 
-		//---------------------------------------------------¶ÔÍâ½Ó¿Ú-----------------------------------------------------------
-		//²Ù×÷·ûÖØÔØ
+		//---------------------------------------------------å¯¹å¤–æ¥å£-----------------------------------------------------------
+		//æ“ä½œç¬¦é‡è½½
 		pointer operator->()const
 		{
 			return this->sPtr_;
@@ -204,8 +204,8 @@ namespace LT {
 			return this->use_count() == 1;
 		}
 	private:
-		//³ÉÔ±±äÁ¿
-		shared_ptr_impl<T,Deleter>* sPtr_; //ÖÇÄÜÖ¸ÕëµÄºËĞÄºÍ¹Ø¼ü¾ÍÔÚÓÚ°´Î»¿½±´ÁËÒ»¸öÖ¸Õë£¬¼´Ç³¿½±´µÄÖ¸Õë¡£Ã¿´Î¿½±´¸ÃÖ¸Õë¸Ä±äÒıÓÃ¼ÆÊı£¬ÒòÎª++i£¬ --iÊÇÏß³Ì°²È«µÄ£¬ËùÒÔ¿ÉÒÔÔÚ¼ÆÊıÎªÁãÊÇÎö¹¹¡£
+		//æˆå‘˜å˜é‡
+		shared_ptr_impl<T,Deleter>* sPtr_; //æ™ºèƒ½æŒ‡é’ˆçš„æ ¸å¿ƒå’Œå…³é”®å°±åœ¨äºæŒ‰ä½æ‹·è´äº†ä¸€ä¸ªæŒ‡é’ˆï¼Œå³æµ…æ‹·è´çš„æŒ‡é’ˆã€‚æ¯æ¬¡æ‹·è´è¯¥æŒ‡é’ˆæ”¹å˜å¼•ç”¨è®¡æ•°ï¼Œå› ä¸º++iï¼Œ --iæ˜¯çº¿ç¨‹å®‰å…¨çš„ï¼Œæ‰€ä»¥å¯ä»¥åœ¨è®¡æ•°ä¸ºé›¶æ˜¯ææ„ã€‚
 	};
 
 
@@ -214,13 +214,13 @@ namespace LT {
 	class weak_ptr
 	{
 	public:
-	//¶¨ÒåÒ»Ğ©ÀàĞÍ
+	//å®šä¹‰ä¸€äº›ç±»å‹
 		typedef typename shared_ptr_impl<T, Deleter>::value_type					value_type;
 		typedef	typename shared_ptr_impl<T, Deleter>::pointer					pointer;
 		typedef typename shared_ptr_impl<T, Deleter>::reference					reference;
 		typedef typename shared_ptr_impl<T, Deleter>::size_type					size_type;
 		
-	//¹¹Ôìº¯Êı
+	//æ„é€ å‡½æ•°
 		constexpr weak_ptr() = default;
 
 		weak_ptr(const weak_ptr& _rhs)
@@ -239,7 +239,7 @@ namespace LT {
 
 		
 
-	//¶ÔÍâ½Ó¿Ú
+	//å¯¹å¤–æ¥å£
 		size_type use_count()const
 		{
 			return sPtr_->pCount_;
@@ -272,18 +272,18 @@ namespace LT {
 	template<class T, class Deleter = DefaultDeleter>
 	class unique_ptr {
 	public:
-		//¶¨ÒåÒ»Ğ©ÀàĞÍ
+		//å®šä¹‰ä¸€äº›ç±»å‹
 		typedef typename shared_ptr_impl<T, Deleter>::value_type					value_type;
 		typedef	typename shared_ptr_impl<T, Deleter>::pointer					pointer;
 		typedef typename shared_ptr_impl<T, Deleter>::reference					reference;
 		typedef typename shared_ptr_impl<T, Deleter>::size_type					size_type;
 
-		//¹¹Ôìº¯Êı
+		//æ„é€ å‡½æ•°
 		constexpr unique_ptr() = default;
 		
 		explicit unique_ptr(pointer _ptr , Deleter _del = Deleter()) :sPtr_(new shared_ptr_impl(_ptr, _del)) {}
 
-		template <class U>//ÎªÁËÏŞ¶¨Ö»ÄÜ´«µİÖ¸Õë
+		template <class U>//ä¸ºäº†é™å®šåªèƒ½ä¼ é€’æŒ‡é’ˆ
 		explicit unique_ptr(U* _ptr , Deleter _del = Deleter()) :sPtr_(new shared_ptr_impl(_ptr, _del)) {}
 
 
@@ -295,16 +295,16 @@ namespace LT {
 			}
 		}
 
-		//´ó²¿·ÖÃ»ÓĞÇø±ğ£¬¶¼ÊÇ²»ÄÜÔÚÍâ²¿·ÃÎÊÕâ¸öº¯Êı¡£
-		//Çø±ğÔÚÓÚ£ºÖ»ÔÚÊ¹ÓÃÄ£°åº¯ÊıÊ±£¬Ö»ÄÜ²ÉÓÃdeleteÌØ»¯£¬²»ÄÜ²ÉÓÃprivateÌØ»¯¡£
+		//å¤§éƒ¨åˆ†æ²¡æœ‰åŒºåˆ«ï¼Œéƒ½æ˜¯ä¸èƒ½åœ¨å¤–éƒ¨è®¿é—®è¿™ä¸ªå‡½æ•°ã€‚
+		//åŒºåˆ«åœ¨äºï¼šåªåœ¨ä½¿ç”¨æ¨¡æ¿å‡½æ•°æ—¶ï¼Œåªèƒ½é‡‡ç”¨deleteç‰¹åŒ–ï¼Œä¸èƒ½é‡‡ç”¨privateç‰¹åŒ–ã€‚
 		
 		unique_ptr(const unique_ptr& _rhs) = delete;
 
 		unique_ptr& operator=(const unique_ptr& _rhs) = delete;
 		
 
-		//---------------------------------------------------¶ÔÍâ½Ó¿Ú-----------------------------------------------------------
-		//²Ù×÷·ûÖØÔØ
+		//---------------------------------------------------å¯¹å¤–æ¥å£-----------------------------------------------------------
+		//æ“ä½œç¬¦é‡è½½
 		pointer operator->()const
 		{
 			return this->sPtr_;
@@ -347,12 +347,12 @@ namespace LT {
 			return Deleter();
 		}
 	private:
-		//³ÉÔ±±äÁ¿
-		shared_ptr_impl<T, Deleter>* sPtr_; //ÖÇÄÜÖ¸ÕëµÄºËĞÄºÍ¹Ø¼ü¾ÍÔÚÓÚ°´Î»¿½±´ÁËÒ»¸öÖ¸Õë£¬¼´Ç³¿½±´µÄÖ¸Õë¡£Ã¿´Î¿½±´¸ÃÖ¸Õë¸Ä±äÒıÓÃ¼ÆÊı£¬ÒòÎª++i£¬ --iÊÇÏß³Ì°²È«µÄ£¬ËùÒÔ¿ÉÒÔÔÚ¼ÆÊıÎªÁãÊÇÎö¹¹¡£
+		//æˆå‘˜å˜é‡
+		shared_ptr_impl<T, Deleter>* sPtr_; //æ™ºèƒ½æŒ‡é’ˆçš„æ ¸å¿ƒå’Œå…³é”®å°±åœ¨äºæŒ‰ä½æ‹·è´äº†ä¸€ä¸ªæŒ‡é’ˆï¼Œå³æµ…æ‹·è´çš„æŒ‡é’ˆã€‚æ¯æ¬¡æ‹·è´è¯¥æŒ‡é’ˆæ”¹å˜å¼•ç”¨è®¡æ•°ï¼Œå› ä¸º++iï¼Œ --iæ˜¯çº¿ç¨‹å®‰å…¨çš„ï¼Œæ‰€ä»¥å¯ä»¥åœ¨è®¡æ•°ä¸ºé›¶æ˜¯ææ„ã€‚
 	};
 
 
-	//-------------------------------------------------------Íâ²¿ÖØÔØ-------------------------------------------------------
+	//-------------------------------------------------------å¤–éƒ¨é‡è½½-------------------------------------------------------
 
 	template <class T, class Deleter>
 	void swap(weak_ptr<T, Deleter> _lhs, weak_ptr<T, Deleter> _rhs)
@@ -379,7 +379,7 @@ namespace LT {
 	{
 		
 		T* ptr = allocator<T>::allocate();
-		assert(ptr == nullptr);
+		assert(ptr != nullptr);
 		try {
 			LT::construct(ptr, LT::forward<Args>(_args)...);
 			return shared_ptr<T>(ptr);

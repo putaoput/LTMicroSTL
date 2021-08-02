@@ -2,8 +2,11 @@
 //@Email: putaopu@qq.com
 
 #pragma once
-//¸ÃÍ·ÎÄ¼şÊÇ¿Õ¼äÅäÖÃÆ÷Ö®Ò»£¬¼òµ¥µÄ¶Ônew ºÍdelete½øĞĞÁË·â×°¡£²»×÷ÎªÄ¬ÈÏ¿Õ¼äÅäÖÃÆ÷
-//Ö»·ÖÅäÄÚ´æ
+//è¯¥å¤´æ–‡ä»¶æ˜¯ç©ºé—´é…ç½®å™¨ä¹‹ä¸€ï¼Œç®€å•çš„å¯¹new å’Œdeleteè¿›è¡Œäº†å°è£…ã€‚ä¸ä½œä¸ºé»˜è®¤ç©ºé—´é…ç½®å™¨
+//åªåˆ†é…å†…å­˜
+// ::newä¸new
+//åœ¨å…¨å±€å‘½åç©ºé—´ä¸­æœ‰ä¸€ä¸ªè‡ªå¸¦çš„ã€éšè—çš„operator newä¸“é—¨ç”¨æ¥åˆ†é…å†…å­˜ã€‚é»˜è®¤æƒ…å†µä¸‹ç¼–è¯‘å™¨ä¼šå°†newè¿™ä¸ªå…³é”®å­—ç¿»è¯‘æˆè¿™ä¸ªoperator newå’Œç›¸åº”çš„æ„é€ å‡½æ•°ã€‚
+
 #include "construct.h"
 
 namespace LT {
@@ -11,7 +14,7 @@ namespace LT {
 	template <class T>
 	class allocator
 	{
-	public://ÓÃÀ´ÌáÈ¡ÀàĞÍ
+	public://ç”¨æ¥æå–ç±»å‹
 		typedef T            value_type;
 		typedef T*           pointer;
 		typedef const T*     const_pointer;
@@ -31,14 +34,14 @@ namespace LT {
 	template <class T>
 	T* allocator<T>::allocate()
 	{
-		return static_cast<T*>(::operator new(sizeof(T)));//µ÷ÓÃµ½È«¾Öº¯Êı
+		return static_cast<T*>(::operator new(sizeof(T)));//è°ƒç”¨åˆ°å…¨å±€å‡½æ•°
 	}
 
 	template <class T>
 	T* allocator<T>::allocate(size_type _n)
 	{
-		if (!_n) { return nullptr; }//¾­¹ıÊµ¼ù·¢ÏÖ£¬Èç¹ûnewµÄ´óĞ¡ÎªÁã£¬Ò²ÊÇ»á·µ»ØÒ»¸ö²»Îª¿ÕÖ¸ÕëÖ¸Ïò´óĞ¡²»ÎªÁãµÄÄÚ´æÇøÓò
-		return static_cast<T*>(::operator new(_n * sizeof(T)));//µ÷ÓÃµ½È«¾Öº¯Êı£¬Ö»ÓĞÕâÃ´µ÷ÓÃnew ²Å¿ÉÒÔÂú×ãÕâÖÖÓï·¨¡£
+		if (!_n) { return nullptr; }//ç»è¿‡å®è·µå‘ç°ï¼Œå¦‚æœnewçš„å¤§å°ä¸ºé›¶ï¼Œä¹Ÿæ˜¯ä¼šè¿”å›ä¸€ä¸ªä¸ä¸ºç©ºæŒ‡é’ˆæŒ‡å‘å¤§å°ä¸ä¸ºé›¶çš„å†…å­˜åŒºåŸŸ
+		return static_cast<T*>(::operator new(_n * sizeof(T)));//è°ƒç”¨åˆ°å…¨å±€å‡½æ•°ï¼Œåªæœ‰è¿™ä¹ˆè°ƒç”¨new æ‰å¯ä»¥æ»¡è¶³è¿™ç§è¯­æ³•ã€‚
 		
 	}
 
@@ -57,10 +60,5 @@ namespace LT {
 		deallocate(_ptr);
 	}
 
-	////Îö¹¹Ö®Ç°ÊÇ»ñÈ¡Õâ¶ÎÄÚ´æµÄÊ×µØÖ·£¬¶ø´«ÈëµÄÍùÍùÊÇÖ¸ÏòÄ³Ò»¸öÊı¾İ½á¹¹µÄÖ¸Õë£¬Õâ¸öÊ±ºòĞèÒª´ÓÕâ¸öÖ¸ÕëÀïÃæ»ñÈ¡Ê×µØÖ·
-	template<class T>
-	T* get_deleter(T* _ptr) {
-		return &*_ptr;
-	}
 }
 
