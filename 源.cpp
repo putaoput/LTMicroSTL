@@ -4,6 +4,7 @@
 #include "test/testDeque.h"
 #include "test/testString.h"
 #include "test/testAlgo.h"
+#include "test/testMemory.h"
 
 #include "stl_algo.h"
 #include <string>
@@ -21,6 +22,7 @@ int main()
 	//LT::test::deque_test::deque_test();
 	LT::test::string_test::string_test();
 	//LT::test::thread_safe_vector_test::test_thread_safe_vactor();
+	LT::test::memory_test::memory_test();
 
 	return 0;
 }

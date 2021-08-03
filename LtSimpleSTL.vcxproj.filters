@@ -177,6 +177,9 @@
     <ClInclude Include="test\testAlgo.h">
       <Filter>头文件\test</Filter>
     </ClInclude>
+    <ClInclude Include="test\testMemory.h">
+      <Filter>头文件\test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="unordered_map.h">

@@ -165,6 +165,7 @@
     <ClInclude Include="string.h" />
     <ClInclude Include="test\Lib\redbud\io\color.h" />
     <ClInclude Include="test\Lib\redbud\platform.h" />
+    <ClInclude Include="test\testMemory.h" />
     <ClInclude Include="test\test.h" />
     <ClInclude Include="test\testAlgo.h" />
     <ClInclude Include="test\testDeque.h" />

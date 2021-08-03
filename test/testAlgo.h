@@ -1,8 +1,7 @@
+//@Author: Lin Tao
+//@Email: putaopu@qq.com
+
 #pragma once
-
-
-#ifndef MYTINYSTL_ALGORITHM_TEST_H_
-#define MYTINYSTL_ALGORITHM_TEST_H_
 
 // À„∑®≤‚ ‘
 #include <algorithm>
@@ -1181,5 +1180,3 @@ namespace LT
 
     } // namespace test
 } // namespace LT
-#endif // !MYTINYSTL_ALGORITHM_TEST_H_
-

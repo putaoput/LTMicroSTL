@@ -66,7 +66,7 @@ namespace LT {
 
 		~shared_ptr_impl()
 		{
-			deleter_()(ptr_);
+			deleter_(ptr_);
 		}
 
 		//操作符重载
@@ -120,7 +120,7 @@ namespace LT {
 
 		explicit shared_ptr(shared_ptr_impl<T,Deleter>* _sPtr):sPtr_(_sPtr){}
 		
-		explicit shared_ptr(pointer _ptr = nullptr, Deleter _del = Deleter()):sPtr_(new shared_ptr_impl(_ptr, _del)){}
+		explicit shared_ptr(pointer _ptr = nullptr, Deleter _del = Deleter()):sPtr_(new shared_ptr_impl<T, Deleter>(_ptr, _del)){}
 		
 		template <class U>//为了限定只能传递指针
 		explicit shared_ptr(U* _ptr = nullptr, Deleter _del = Deleter()) :sPtr_(new shared_ptr_impl(_ptr, _del)) {}
@@ -128,12 +128,12 @@ namespace LT {
 		shared_ptr(const shared_ptr& _rhs)
 			:sPtr_(_rhs.sPtr_)
 		{
-			_rhs.sPtr_.hold();
+			_rhs.sPtr_->hold();
 		}
 
 		~shared_ptr()
 		{
-			if (sPtr_.release())
+			if (sPtr_->release())
 			{
 				delete sPtr_;
 			}
@@ -143,13 +143,13 @@ namespace LT {
 		shared_ptr(const shared_ptr<U, Deleter> _rhs)
 			:sPtr_(_rhs.sPtr_)
 		{
-			_rhs.sPtr_.hold();
+			_rhs.sPtr_->hold();
 		}
 		
 		shared_ptr& operator=(const shared_ptr& _rhs)
 		{
 			sPtr_ = _rhs.sPtr_;
-			_rhs.sPtr_.hold();
+			_rhs.sPtr_->hold();
 			return *this;
 		}
 
@@ -157,7 +157,7 @@ namespace LT {
 		shared_ptr<U,Deleter>& operator=(const shared_ptr<U,Deleter>& _rhs)
 		{
 			sPtr_ = _rhs.sPtr_;
-			_rhs.sPtr_.hold();
+			_rhs.sPtr_->hold();
 			return *this;
 		}
 
@@ -289,7 +289,7 @@ namespace LT {
 
 		~unique_ptr()
 		{
-			if (sPtr_.release())
+			if (sPtr_->release())
 			{
 				delete sPtr_;
 			}
@@ -373,23 +373,22 @@ namespace LT {
 		_lhs.swap(_rhs);
 	}
 	
-	//make_shared
-	template<class T, class ... Args>
-	shared_ptr<T> make_shared(Args&&... _args)
-	{
-		
-		T* ptr = allocator<T>::allocate();
-		assert(ptr != nullptr);
-		try {
-			LT::construct(ptr, LT::forward<Args>(_args)...);
-			return shared_ptr<T>(ptr);
-		}
-		catch (...)
-		{
-			LT::destroy(ptr, sizeof(*ptr));
-		}
-		
-	}
+	//TODO make_shared实现不对，有时间应该好好修改。
+	////make_shared
+	//template<class T, class ...Args>
+	//shared_ptr<T> make_shared(Args&&... _args)
+	//{
+	//	T* ptr = allocator<T>::allocate();
+	//	assert(ptr != nullptr);
+	//	try {
+	//		LT::construct(ptr, LT::forward<Args>(_args)...);
+	//		return shared_ptr<T>(ptr);
+	//	}
+	//	catch (...)
+	//	{
+	//		LT::destroy(ptr, sizeof(*ptr));
+	//	}
+	//}
 }
 
 
