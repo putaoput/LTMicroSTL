@@ -561,10 +561,10 @@ namespace LT {
 		//该函数负责在现有容量不足时，扩容并且搬移到新内存，输入参数为需要容纳的元素大小
 		void __move_bigger_house(size_type _needSize) {
 			size_type oldCap = capacity();
-			size_type newCap = oldCap;
+			size_type newCap = oldCap + 1;
 			while (newCap < _needSize)
 			{
-				newCap *= EXPAN;
+				newCap = max(static_cast<size_type>(newCap * EXPAN), newCap + 1);
 			}
 			if (newCap != oldCap)
 			{

@@ -11,6 +11,7 @@
 #include "iterator.h"
 #include "allocator.h"
 #include <iostream>
+#include "test/testThreadSafeVector.h"
 
 
 using namespace std;
@@ -21,7 +22,7 @@ int main()
 	LT::test::list_test::list_test();
 	//LT::test::deque_test::deque_test();
 	LT::test::string_test::string_test();
-	//LT::test::thread_safe_vector_test::test_thread_safe_vactor();
+	LT::test::thread_safe_vector_test::test_thread_safe_vactor();
 	LT::test::memory_test::memory_test();
 
 	return 0;

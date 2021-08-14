@@ -803,7 +803,7 @@ namespace LT {
         size_type rfind(value_type _value, size_type _pos = npos) const
         {
             size_type pos = min(npos, size_ - 1);
-            for (size_type i = pos; i >= 0; --i)
+            for (size_type i = pos; i > 0; --i)
             {
                 if (*(strPtr_ + i) == _value) {
                     return i;

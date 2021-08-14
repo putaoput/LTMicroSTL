@@ -110,10 +110,10 @@ namespace LT {
 		friend class  weak_ptr<T, DefaultDeleter>;
 	public:
 		//定义一些类型
-		typedef typename shared_ptr_impl<T,Deleter>::value_type					value_type;
-		typedef	typename shared_ptr_impl<T, Deleter>::pointer					pointer;
-		typedef typename shared_ptr_impl<T, Deleter>::reference					reference;
-		typedef typename shared_ptr_impl<T, Deleter>::size_type					size_type;
+		typedef typename shared_ptr_impl<T, Deleter>::value_type					value_type;
+		typedef	typename shared_ptr_impl<T, Deleter>::pointer						pointer;
+		typedef typename shared_ptr_impl<T, Deleter>::reference						reference;
+		typedef typename shared_ptr_impl<T, Deleter>::size_type						size_type;
 
 		//构造函数
 		constexpr shared_ptr() = default;

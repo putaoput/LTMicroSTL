@@ -131,14 +131,13 @@ namespace LT {
 			for (; cur != _last; ++cur) {
 				construct(&*cur, _value);
 			}
-			return cur;
+			
 		}
 		catch(...){
 			//失败了要进行析构
 			for (auto it = _first; cur != it; ++it) {
 				destroy(&*it);
-			}
-			return _first;
+			}	
 		}
 	}
 
